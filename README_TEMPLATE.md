@@ -4,9 +4,47 @@ Use this section to outline the vision for the product, including a **use case d
 
 # Design
 
+Class Diagram
+![pics/class.png](pics/class.png)
+
+Use Case
+![pics/use_case.png](pics/use_case.png)
+
 ## User Stories
 
-Describe the **user stories** for the project, ensuring each includes clear **acceptance criteria** and a **point estimate**. The **user stories** must align with the **use case diagram** and should be referred to as US#1, US#2, etc. 
+<!-- Describe the **user stories** for the project, ensuring each includes clear **acceptance criteria** and a **point estimate**. The **user stories** must align with the **use case diagram** and should be referred to as US#1, US#2, etc.  -->
+
+## US #1 - User Registration and Authentication
+- As a user, I want to create an account with a secure password so that I can access the web-app's features. When I fill in the required account information (username, password) I want to hit a 'Submit' button which confirms that my account has been created.
+
+## US #2 - Login and Logout
+- As a user, I want to login and log out securely. On the landing page, I want to be able to hit the 'Log In' button where the system will autheticate my information and upon success, direct me to the main page of the website. When I hit the 'Log Out' button, I want the system to log my account, returning me to the landing page. 
+
+## US #3 - User Account Control
+- As a user, I want to be able to click an "Account" link to be directed to a page that dsplays my account information. I want to be able to edit my password and account picture on this page.
+
+## US #4 - Administrator Account Control
+- As an administrator, I want to be able to click a button that takes me to a page that displays all active user accounts for the website. I want to be able to toggle users to also be adminstrators. I want to be able to delete user accounts on this page as well, with a confirmation window popping up to confirm before deletion. 
+
+## US #5 - Search Movies/TV
+- As a user, I want to be able to search either movies or TV shows by title, genres, rating, and release date. When I click the search button after specifying search parameters, I wish to view a list of my filtered results (see US#6)
+
+## US #6 - List Filtered Movies/TV
+- After a successful search, I want to be able to view a list of movies or tv shows based on those search parameters. 
+
+## US #7 - Movie/TV Object Page
+- As a user, after a successful search and viewing the list of search results, I want to click a tv/movie and be directed to a page that shows more info on that object. This page would show  information such as a key image, title, release information, and average rating.  
+
+## US #8 - User Favorites List
+- As a user, I want to be able to click a button within the Movie/TV Object Page that will either add or remove that movie/tv object to a favorites list. When I click the "Favorites" button in the menu bar, I want to be directed to a page that shows me my favorites list. 
+
+## US #9 - Movie/TV User Review
+- As a user, when I'm viewing a page for a Movie/TV Show, I want to be able to fill a field that allows me to add a 1-5 star rating and a short review for that movie. When this review is added, it displays it in a running column within the page for that Movie/TV show. 
+
+- As an administrator, I want to bee able to delete user reviews from their respective page, by clicking an 'X' next to each review that is only visible to administrators. 
+
+## US #10 - Movie/TV Recommendation Page
+- As a user, I want to click a "Recommendations" button that directs me to a page that will recommend me Movies/TV shows based on my favorites list. I want to be able to specify if I want these recommendations to be either high or lower rated. 
 
 ## Sequence Diagram
 
@@ -14,7 +52,9 @@ At least one **user story**, unrelated to user creation or authentication, must 
 
 ## Model 
 
-Include a class diagram that clearly describes the model classes used in the project and their associations.
+<!-- Include a class diagram that clearly describes the model classes used in the project and their associations. -->
+
+![pics/use_case.png](pics/use_case.png)
 
 # Development Process 
 
