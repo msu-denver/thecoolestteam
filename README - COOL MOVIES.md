@@ -15,7 +15,6 @@ earth_fire
 highway
 ![pics/colors/highway.png](pics/colors/highway.png)
 
-Class Diagram
 ![pics/class.png](pics/class.png)
 
 ## Model 
