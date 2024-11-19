@@ -1,8 +1,8 @@
 ## Overview - COOL MOVIES APP ##
 
-## Design
+# Design
 
-# Color Pallette
+## Color Pallette
 
 airport
 
