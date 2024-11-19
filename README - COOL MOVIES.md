@@ -2,6 +2,19 @@
 
 # Design
 
+Color Pallette
+airport
+![pics/colors/airport.png](pics/colors/airport.png)
+
+cupcake
+![pics/colors/cupcake.png](pics/colors/cupcake.png)
+
+earth_fire
+![pics/colors/earth_fire.png](pics/colors/earth_fire.png)
+
+highway
+![pics/colors/highway.png](pics/colors/highway.png)
+
 Class Diagram
 ![pics/class.png](pics/class.png)
 
@@ -83,7 +96,7 @@ POINTS:
 
 US #8 Sequence - User Favorites List
 
-![pics/us8_sequence.png](pic/us8_sequence.png)
+![pics/us8_sequence.png](pics/us8_sequence.png)
 
 # Development Process 
 
