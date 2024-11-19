@@ -2,17 +2,22 @@
 
 ## Design
 
-Color Pallette
+# Color Pallette
+
 airport
+
 ![pics/colors/airport.png](pics/colors/airport.png)
 
 cupcake
+
 ![pics/colors/cupcake.png](pics/colors/cupcake.png)
 
 earth_fire
+
 ![pics/colors/earth_fire.png](pics/colors/earth_fire.png)
 
 highway
+
 ![pics/colors/highway.png](pics/colors/highway.png)
 
 ![pics/class.png](pics/class.png)
