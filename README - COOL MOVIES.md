@@ -1,8 +1,7 @@
 ## Overview ##
 
-# Design
+## Design
 
-Class Diagram
 ![pics/class.png](pics/class.png)
 
 ## Model 
