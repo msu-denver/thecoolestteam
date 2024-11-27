@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }} - Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center">
+        <h2>{{ movie.title }}</h2>
+        <img src="{{ movie.poster_url }}" alt="{{ movie.title }} Poster" class="img-fluid my-3" style="max-width: 300px;">
+        <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
+        <p><strong>Average Rating:</strong> {{ movie.averageRating }}/10</p>
+    </div>
+</div>
+{% endblock %}

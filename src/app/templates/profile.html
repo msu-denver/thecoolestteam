@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ current_user.username }}{% endblock %}
+
+{% block content %}
+    <h2>User Profile</h2>
+    <ul class="list-group">
+        <li class="list-group-item"><strong>Username:</strong> {{ current_user.username }}</li>
+        <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+        <!-- Add more user details as needed -->
+    </ul>
+{% endblock %}

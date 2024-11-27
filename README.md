@@ -3,18 +3,21 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
+  - [3. Build and Run with Docker Compose](#3-build-and-run-with-docker-compose)
+  - [4. Apply Database Migrations](#4-apply-database-migrations)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
 - [Features](#features)
 - [Color Pallette](#color-pallette)
 - [Project Structure](#project-structure)
 - [Classes](#classes)
 - [Model](#model)
 - [User Stories](#user-stories)
-- [Setup Instructions](#setup-instructions)
-  - [1. Clone the Repository](#1-clone-the-repository)
-  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
-  - [3. Build and Run with Docker Compose](#3-build-and-run-with-docker-compose)
-  - [4. Apply Database Migrations](#4-apply-database-migrations)
-- [API Endpoints](#api-endpoints)
+
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -22,6 +25,70 @@
 ## Introduction
 
 WORK IN PROGRESS
+
+## Prerequisites
+
+- [Docker](https://www.docker.com/get-started) installed on your machine
+- [Docker Compose](https://docs.docker.com/compose/install/) installed
+- Git installed
+
+## Installation
+
+1. **Clone the Repository**
+
+    ```bash
+    git clone https://github.com/yourusername/your-repo-name.git
+    cd your-repo-name
+    ```
+
+2. **Set Up Environment Variables**
+
+    Create a `.env` file based on the `.env.example` template.
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Edit the `.env` file to include your own configurations.
+
+    ```env
+    # Flask Configuration
+    FLASK_APP=run
+    FLASK_ENV=development
+    FLASK_RUN_HOST=0.0.0.0
+    FLASK_RUN_PORT=5000
+
+    # Database Configuration
+    DATABASE_URL=postgresql://postgres:yourpassword@db:5432/yourdbname
+
+    # Security
+    SECRET_KEY=your_secret_key
+    ```
+
+3. **Build and Run Docker Containers**
+
+    ```bash
+    docker compose up -d --build
+    ```
+
+4. **Apply Database Migrations**
+
+    ```bash
+    docker compose exec web flask db upgrade
+    ```
+
+5. **Access the Application**
+
+    Open your browser and navigate to [http://localhost:5000/](http://localhost:5000/) to see the homepage.
+
+### Usage
+
+- **Login:** [http://localhost:5000/login](http://localhost:5000/login)
+- **Sign Up:** [http://localhost:5000/signup](http://localhost:5000/signup)
+- **Profile:** Accessible via the username in the navbar after logging in.
+
+
+## API Endpoints
 
 ## Features
 

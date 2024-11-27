@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Favorites - The Coolest Team{% endblock %}
+
+{% block content %}
+    <h2>Your Favorites</h2>
+    {% if favorites %}
+        <div class="row">
+            {% for favorite in favorites %}
+                {% if favorite.movie %}
+                    <div class="col-md-4">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ favorite.movie.title }}</h5>
+                                <p class="card-text">{{ favorite.movie.description }}</p>
+                                <a href="{{ url_for('main.movie_detail', movie_id=favorite.movie.id) }}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% elif favorite.tv_show %}
+                    <div class="col-md-4">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ favorite.tv_show.title }}</h5>
+                                <p class="card-text">{{ favorite.tv_show.description }}</p>
+                                <a href="{{ url_for('main.tvshow_detail', tvshow_id=favorite.tv_show.id) }}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have no favorites yet.</p>
+    {% endif %}
+{% endblock %}

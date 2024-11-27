@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tvshow.title }} - Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center">
+        <h2>{{ tvshow.title }}</h2>
+        <img src="{{ tvshow.poster_url }}" alt="{{ tvshow.title }} Poster" class="img-fluid my-3" style="max-width: 300px;">
+        <p><strong>Release Year:</strong> {{ tvshow.releaseYear }}</p>
+        <p><strong>Average Rating:</strong> {{ tvshow.averageRating }}/10</p>
+    </div>
+</div>
+{% endblock %}

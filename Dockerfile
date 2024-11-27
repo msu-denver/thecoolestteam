@@ -5,8 +5,8 @@ FROM python:3.9-slim
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
-    libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory.
 WORKDIR /app
@@ -22,11 +22,5 @@ COPY src/ .
 # Expose the port that the Flask app runs on.
 EXPOSE 5000
 
-# Set the environment variables for Flask
-ENV FLASK_APP=run
-ENV FLASK_ENV=development
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=5000
-
 # Run the application.
-CMD ["flask", "run"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
