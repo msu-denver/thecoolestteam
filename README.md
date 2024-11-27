@@ -1,6 +1,35 @@
-## Overview - COOL MOVIES APP ##
+# Project 3 Final Project - The Coolest Team
 
-# Design
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Color Pallette](#color-pallette)
+- [Project Structure](#project-structure)
+- [Classes](#classes)
+- [Model](#model)
+- [User Stories](#user-stories)
+- [Setup Instructions](#setup-instructions)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
+  - [3. Build and Run with Docker Compose](#3-build-and-run-with-docker-compose)
+  - [4. Apply Database Migrations](#4-apply-database-migrations)
+- [API Endpoints](#api-endpoints)
+- [Contributing](#contributing)
+- [License](#license)
+
+
+## Introduction
+
+WORK IN PROGRESS
+
+## Features
+
+- User Authentication (Sign Up, Login, Logout)
+- Secure Password Hashing
+- Database Integration with PostgreSQL
+- API Endpoints for [describe functionalities]
+- [Add more features as applicable]
 
 ## Color Pallette
 
@@ -20,6 +49,10 @@ highway
 
 ![pics/colors/highway.png](pics/colors/highway.png)
 
+## Project Structure
+
+project-root/ ├── Dockerfile ├── docker-compose.yml ├── requirements.txt ├── .dockerignore ├── .gitignore ├── README.md └── src/ ├── run.py └── app/ ├── init.py ├── config.py ├── forms.py ├── models.py ├── routes.py └── templates/ ├── home.html ├── login.html └── signup.html
+
 ## Classes
 
 ![pics/class.png](pics/class.png)
@@ -28,7 +61,7 @@ highway
 
 ![pics/use_case.png](pics/usecase.png)
 
-## User Stories ##
+## User Stories
 
 <!-- Describe the **user stories** for the project, ensuring each includes clear **acceptance criteria** and a **point estimate**. The **user stories** must align with the **use case diagram** and should be referred to as US#1, US#2, etc.  -->
 

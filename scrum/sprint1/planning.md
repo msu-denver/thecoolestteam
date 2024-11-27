@@ -11,7 +11,7 @@ airport
 ![pics/colors/airport.png](pics/colors/airport.png)
 
 cupcake
-![pics/colors/cupcake.png](pics/colors/cupcake.png)
+![pics/colors/cupcake.png](pics/colors/cupcake.png)   chose this
 
 earth_fire
 ![pics/colors/earth_fire.png](pics/colors/earth_fire.png)
@@ -21,16 +21,16 @@ highway
 
 - Decide User Story weights
 
-US1 - User Registration/Authentication -    POINTS:
-US2 - Login/Logout                          POINTS:
-US3 - User Account Control                  POINTS: 
-US4 - Admin Account Control                 POINTS:
-US5 - Search Movies/TV                      POINTS:
-US6 - List Filtered Search - Movies/TV      POINTS:
-US7 - Movie/TV Object Page                  POINTS:
-US8 - User Favorites List                   POINTS:
-US9 - Movie/TV User Review                  POINTS:
-US10 - Movie/TV Recommendation Page         POINTS:
+US1 - User Registration/Authentication -    POINTS: 1/2
+US2 - Login/Logout                          POINTS: 1/2
+US3 - User Account Control                  POINTS: 2
+US4 - Admin Account Control                 POINTS: 1
+US5 - Search Movies/TV                      POINTS: 3
+US6 - List Filtered Search - Movies/TV      POINTS: 5
+US7 - Movie/TV Object Page                  POINTS: 8
+US8 - User Favorites List                   POINTS: 8
+US9 - Movie/TV User Review                  POINTS: 10
+US10 - Movie/TV Recommendation Page         POINTS: 15
 
 ## Sprint 1 Work Splits ##
 - 
