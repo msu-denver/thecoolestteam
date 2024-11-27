@@ -56,12 +56,13 @@ class TVShow(db.Model):
     __tablename__ = 'tv_show'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
-    seasons = db.Column(db.Integer, nullable=False)
-    episodes = db.Column(db.Integer, nullable=False)
-    release_date = db.Column(db.Date, nullable=False)
+    seasons = db.Column(db.Integer, nullable=False, default=1)
+    episodes = db.Column(db.Integer, nullable=False, default=1)
+    release_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     genre = db.Column(db.String(100), nullable=False)  # Ensure 'genre' is singular
-    rating = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False, default=5)
+    description = db.Column(db.Text, nullable=False, default='No description available.')
+    poster_url = db.Column(db.String(500), default='https://via.placeholder.com/300x450.png?text=No+Image')  # Added poster_url
 
     # Relationships
     reviews = relationship('Review', backref='tv_show', lazy='dynamic')

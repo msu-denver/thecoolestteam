@@ -1,15 +1,17 @@
 services:
   web:
     build: .
-    command: flask run --host=0.0.0.0 --port=5000
+    command: flask run
     ports:
       - "5000:5000"
     volumes:
-      - ./src:/app
+      - .:/app  # Mount the entire project directory
     depends_on:
       - db
     env_file:
       - .env  # Load all environment variables from .env
+    environment:
+      - PYTHONPATH=/app/src
     restart: unless-stopped  # Restart policy
 
   db:

@@ -43,43 +43,68 @@ WORK IN PROGRESS
 
 2. **Set Up Environment Variables**
 
-    Create a `.env` file based on the `.env.example` template.
+    The `.env` file contains all necessary configurations for both Flask and PostgreSQL. Since the `.env` file is uploaded to the repository and safe for your projectmates, you can directly use it without copying.
 
-    ```bash
-    cp .env.example .env
-    ```
-
-    Edit the `.env` file to include your own configurations.
+    **`.env`**
 
     ```env
     # Flask Configuration
-    FLASK_APP=run
+    FLASK_APP=run.py
     FLASK_ENV=development
     FLASK_RUN_HOST=0.0.0.0
     FLASK_RUN_PORT=5000
+    OMDB_API_KEY=1ed15636  # Replace with your actual OMDb API key
 
     # Database Configuration
-    DATABASE_URL=postgresql://postgres:yourpassword@db:5432/yourdbname
+    POSTGRES_USER=coolteam
+    POSTGRES_PASSWORD=54153
+    POSTGRES_DB=cool_movie_list
+    DATABASE_URL=postgresql://coolteam:54153@db:5432/cool_movie_list
 
     # Security
-    SECRET_KEY=your_secret_key
+    SECRET_KEY=movies_are_cool
     ```
 
 3. **Build and Run Docker Containers**
+
+    Use Docker Compose to build and start the containers in detached mode.
 
     ```bash
     docker compose up -d --build
     ```
 
+    **Explanation:**
+    - `up`: Creates and starts the containers.
+    - `-d`: Runs containers in detached mode (in the background).
+    - `--build`: Rebuilds the Docker images to incorporate the latest changes.
+
 4. **Apply Database Migrations**
 
+    Initialize and apply the database migrations to set up the database schema.
+
     ```bash
+    docker compose exec web flask db migrate -m "Initial migration"
     docker compose exec web flask db upgrade
     ```
 
+    **Explanation:**
+    - `flask db migrate`: Generates a new migration script by comparing the database schema to your models.
+    - `flask db upgrade`: Applies the migration to the database.
+
 5. **Access the Application**
 
-    Open your browser and navigate to [http://localhost:5000/](http://localhost:5000/) to see the homepage.
+    Open your web browser and navigate to [http://localhost:5000/](http://localhost:5000/) to view the homepage of the application.
+
+---
+
+### **Additional Notes:**
+
+- **Verifying Environment Variables:**
+  
+  To ensure that all environment variables are correctly loaded inside the `web` container, you can run:
+
+  ```bash
+  docker compose exec web env | grep FLASK
 
 ### Usage
 

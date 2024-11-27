@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt
+from utils import fetch_poster
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
 from app.forms import RegistrationForm, LoginForm
 from sqlalchemy.sql.expression import func
@@ -64,7 +65,7 @@ def movie_detail(movie_id):
 @main.route('/tvshow/<int:tvshow_id>')
 def tvshow_detail(tvshow_id):
     tv_show = TVShow.query.get_or_404(tvshow_id)
-    return render_template('tvshow_detail.html', tv_show=tv_show)
+    return render_template('tvshow_detail.html', tv_show=tvshow)
 
 @main.route('/profile')
 @login_required
@@ -79,7 +80,7 @@ def favorites():
 
 @main.route('/random')
 @login_required
-def random():
+def random_route():  # Renamed function
     # Decide randomly to choose a movie or a TV show
     choice = random.choice(['movie', 'tvshow'])
     
@@ -118,7 +119,7 @@ def search():
         flash(f'Search functionality is not yet implemented. You searched for: {query}', 'info')
     return redirect(url_for('main.home'))
 
-## HERE BE ERROR HANDLIN ##
+## ERROR HANDLING ##
 
 @main.app_errorhandler(404)
 def not_found_error(error):
@@ -128,3 +129,12 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+
+## DEBUGGING ##
+
+@main.route('/debug_db')
+def debug_db():
+    movie_count = Movie.query.count()
+    tvshow_count = TVShow.query.count()
+    return f"Movies: {movie_count}, TV Shows: {tvshow_count}"
