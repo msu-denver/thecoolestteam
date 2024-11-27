@@ -43,7 +43,7 @@ WORK IN PROGRESS
 
 2. **Set Up Environment Variables**
 
-    The `.env` file contains all necessary configurations for both Flask and PostgreSQL. Since the `.env` file is uploaded to the repository and safe for your projectmates, you can directly use it without copying.
+    The `.env` file contains all necessary configurations for both Flask and PostgreSQL. Since the `.env` file is uploaded to the repository, you can directly use it without copying.
 
     **`.env`**
 
@@ -91,7 +91,21 @@ WORK IN PROGRESS
     - `flask db migrate`: Generates a new migration script by comparing the database schema to your models.
     - `flask db upgrade`: Applies the migration to the database.
 
-5. **Access the Application**
+5. **POPULATE THE DATABASE**
+    verify your docker image is running with 
+    
+    ```bash
+    docker ps
+    ```
+    If you see it running, populate the database by entering the web docker image and running the import_data.py          script
+
+   ```bash
+   docker compose exec web bash
+   python import_data.py
+   ```
+
+
+7. **Access the Application**
 
     Open your web browser and navigate to [http://localhost:5000/](http://localhost:5000/) to view the homepage of the application.
 
