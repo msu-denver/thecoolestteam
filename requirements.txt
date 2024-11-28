@@ -19,3 +19,4 @@ Flask-WTF==1.2.2
 requests==2.26.0
 email_validator==1.2.0
 gunicorn==20.1.0  # Optional: If using Gunicorn for production
+jsonify==0.5

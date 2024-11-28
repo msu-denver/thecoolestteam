@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt
 from utils import fetch_poster
@@ -110,14 +110,37 @@ def random_route():  # Renamed function
             flash('No TV shows available.', 'warning')
             return redirect(url_for('main.mainpage'))
 
+
 @main.route('/search')
 def search():
     query = request.args.get('query')
-    if query:
-        # Implement search logic here
-        # For demonstration, we'll just flash the search query
-        flash(f'Search functionality is not yet implemented. You searched for: {query}', 'info')
-    return redirect(url_for('main.home'))
+    movies = Movie.query.filter(Movie.title.contains(query)).all()
+    tv_shows = TVShow.query.filter(TVShow.title.contains(query)).all()
+    if  movies or tv_shows:
+        if movies:
+            return movie_detail(movies[0].id)
+        else:
+            return tvshow_detail(tv_shows[0].id)
+    else:
+        flash('No results found.', 'warning')
+        return redirect(url_for('main.mainpage'))
+@main.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    query = request.args.get('query', '', type=str)
+    
+    # Fetch matching movies and TV shows
+    movies = Movie.query.filter(Movie.title.ilike(f"%{query}%")).all()
+    tv_shows = TVShow.query.filter(TVShow.title.ilike(f"%{query}%")).all()
+
+    # Combine results with their IDs
+    results = [
+        {'id': movie.id, 'title': movie.title, 'type': 'movie'} for movie in movies
+    ] + [
+        {'id': tv_show.id, 'title': tv_show.title, 'type': 'tv_show'} for tv_show in tv_shows
+    ]
+
+    return jsonify(results)
+
 
 ## ERROR HANDLING ##
 

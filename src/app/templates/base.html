@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}The Coolest Team{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     {% block head %}{% endblock %}
     <style>
-        /* Optional: Center the search bar */
         .navbar-center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
             width: 50%;
         }
+
         @media (max-width: 992px) {
             .navbar-center {
                 position: static;
@@ -24,6 +26,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -31,70 +34,138 @@
             <!-- Brand -->
             <a class="navbar-brand" href="{{ url_for('main.home') }}">CoolestTeam</a>
             <!-- Toggler for responsive navbar -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Centered Search Bar -->
-                <form class="d-flex navbar-center" action="{{ url_for('main.search') }}" method="GET">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query" required>
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                <form class="d-flex navbar-center position-relative" id="search-form"
+                    action="{{ url_for('main.search') }}" method="GET">
+                    <!-- Search Input -->
+                    <div class="w-100 position-relative">
+                        <input class="form-control me-2" type="search" id="search-input"
+                            placeholder="Search for movies or TV shows..." aria-label="Search" name="query"
+                            autocomplete="off" required>
+
+                        <!-- Autocomplete Dropdown -->
+                        <ul id="autocomplete-list" class="list-group position-absolute w-100"
+                            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto;"></ul>
+                    </div>
+
+                    <!-- Search Button -->
+                    <button class="btn btn-outline-success ms-2" type="submit">Search</button>
                 </form>
+                <script>
+                    const searchInput = document.getElementById("search-input");
+                    const autocompleteList = document.getElementById("autocomplete-list");
+
+                    // Handle input event on the search bar
+                    searchInput.addEventListener("input", function () {
+                        const query = this.value;
+
+                        if (query.length > 1) {
+                            // Fetch autocomplete results
+                            fetch(`/autocomplete?query=${query}`)
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    autocompleteList.innerHTML = ""; // Clear previous results
+
+                                    // Populate the autocomplete dropdown
+                                    if (data.length) {
+                                        data.forEach((item) => {
+                                            const li = document.createElement("li");
+                                            li.classList.add("list-group-item");
+                                            li.textContent = `${item.title} (${item.type})`;
+                                            li.style.cursor = "pointer";
+
+                                            // Redirect to the appropriate detail page on click
+                                            li.addEventListener("click", () => {
+                                                if (item.type === "movie") {
+                                                    window.location.href = `/movie/${item.id}`;
+                                                } else if (item.type === "tv_show") {
+                                                    window.location.href = `/tvshow/${item.id}`;
+                                                }
+                                            });
+
+                                            autocompleteList.appendChild(li);
+                                        });
+                                    } else {
+                                        autocompleteList.innerHTML = `<li class="list-group-item">No results found</li>`;
+                                    }
+                                })
+                                .catch((error) => console.error("Error fetching autocomplete data:", error));
+                        } else {
+                            autocompleteList.innerHTML = ""; // Clear suggestions if query is too short
+                        }
+                    });
+
+                    // Close dropdown when clicking outside
+                    document.addEventListener("click", function (event) {
+                        if (!autocompleteList.contains(event.target) && event.target !== searchInput) {
+                            autocompleteList.innerHTML = "";
+                        }
+                    });
+                </script>
                 <!-- Right-aligned navigation links -->
                 {% if current_user.is_authenticated %}
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <!-- Dropdown Menu -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Menu
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('main.favorites') }}">Favorites</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('main.random_route') }}">Random</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sign Out</a></li>
-                            </ul>
-                        </li>
-                        <!-- Username Link -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.profile') }}">{{ current_user.username }}</a>
-                        </li>
-                    </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <!-- Dropdown Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('main.favorites') }}">Favorites</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.random_route') }}">Random</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sign Out</a></li>
+                        </ul>
+                    </li>
+                    <!-- Username Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.profile') }}">{{ current_user.username }}</a>
+                    </li>
+                </ul>
                 {% else %}
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.signup') }}">Sign Up</a>
-                        </li>
-                    </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.signup') }}">Sign Up</a>
+                    </li>
+                </ul>
                 {% endif %}
             </div>
         </div>
     </nav>
-
     <!-- Main Content -->
     <div class="container" style="margin-top: 80px;">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
 
     <!-- Bootstrap JS (with Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
 
 <style>
