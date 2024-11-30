@@ -141,6 +141,24 @@ def autocomplete():
 
     return jsonify(results)
 
+@app.route('/toggle_admin/<id>', methods=['POST'])
+@login_required
+def toggle_admin(id):
+    if not current_user.admin:
+        flash("You are not authorized to access this page.")
+        return redirect(url_for('index'))
+    
+    if current_user.id == id:
+        flash("You cannot change your own admin status.")
+        return redirect(url_for('admin'))
+    
+    user = User.query.get(id)
+    if user:
+        user.admin = not user.admin
+        db.session.commit()
+        flash(f"User {user.name} is now {'an admin' if user.admin else 'not an admin'}")
+    
+    return redirect(url_for('admin'))
 
 ## ERROR HANDLING ##
 

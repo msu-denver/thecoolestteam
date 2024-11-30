@@ -1,4 +1,4 @@
-#!/home/moondoggie/s/3250/project-3-final-project-the-coolest-team/venv/bin/python3.12
+#!/home/moondoggie/s/3250/project-3-final-project-the-coolest-team/src/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
