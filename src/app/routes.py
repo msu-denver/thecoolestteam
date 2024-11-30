@@ -144,6 +144,7 @@ def autocomplete():
 @app.route('/toggle_admin/<id>', methods=['POST'])
 @login_required
 def toggle_admin(id):
+    #Toggle user admin permissions
     if not current_user.admin:
         flash("You are not authorized to access this page.")
         return redirect(url_for('index'))
