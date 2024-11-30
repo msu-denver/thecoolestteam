@@ -141,7 +141,7 @@ def autocomplete():
 
     return jsonify(results)
 
-@app.route('/toggle_admin/<id>', methods=['POST'])
+@main.route('/toggle_admin/<id>', methods=['POST'])
 @login_required
 def toggle_admin(id):
     #Toggle user admin permissions
