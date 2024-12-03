@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from app.models import User
 
 class RegistrationForm(FlaskForm):
@@ -41,6 +41,19 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+
+class ReviewForm(FlaskForm):
+
+    comment = TextAreaField('Comment', validators=[
+        DataRequired()
+    ])
+
+    rating = IntegerField ('Rating', validators=[
+        DataRequired(), NumberRange(min=0, max=10, message="Rating must be a number from 0 to 10 ")
+    ])
+
+    submit = SubmitField('Post Review')
+    
 class ProfileForm(FlaskForm):
     oldPassword = StringField('Old Password', validators=[DataRequired()])
     newPassword = StringField('New Password', validators=[DataRequired()])

@@ -58,7 +58,7 @@ class TVShow(db.Model):
     title = db.Column(db.String(255), nullable=False)
     seasons = db.Column(db.Integer, nullable=False, default=1)
     episodes = db.Column(db.Integer, nullable=False, default=1)
-    release_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    release_date = db.Column(db.Date, nullable=False, default=datetime.now)
     genre = db.Column(db.String(100), nullable=False)  # Ensure 'genre' is singular
     rating = db.Column(db.Integer, nullable=False, default=5)
     description = db.Column(db.Text, nullable=False, default='No description available.')
@@ -126,7 +126,7 @@ class Review(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=True)
     tvshow_id = db.Column(db.Integer, db.ForeignKey('tv_show.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     # Ensure that either movie_id or tvshow_id is provided, not both
     # Ensure that rating is between 1 and 10

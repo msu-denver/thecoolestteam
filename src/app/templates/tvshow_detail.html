@@ -6,9 +6,41 @@
 <div class="d-flex justify-content-center mt-5">
     <div class="text-center">
         <h2>{{ tvshow.title }}</h2>
-        <img src="{{ tvshow.poster_url }}" alt="{{ tvshow.title }} Poster" class="img-fluid my-3" style="max-width: 300px;">
-        <p><strong>Release Year:</strong> {{ tvshow.releaseYear }}</p>
-        <p><strong>Average Rating:</strong> {{ tvshow.averageRating }}/10</p>
-    </div>
+        <img src="{{ tvshow.poster_url }}" alt="{{ tvshow.title }} Poster" class="img-fluid my-3" style="max-width: 300px; border-radius: 15px;">
+
+        {% if tvshow.release_date %}
+            <p><strong>Release Year:</strong> {{ tvshow.release_date.year }}</p>
+        {% else %}
+            <p><strong>Release Year:</strong> N/A </p>
+        {% endif %}
+
+        {% if tvshow.rating %}
+            <p><strong>Average Rating:</strong> {{ tvshow.rating }}/10</p>
+        {% else %}
+            <p><strong>Average Rating:</strong> N/A </p>
+        {% endif %}
+
+        <div class = "d-grid gap-2">
+            <button type="button" class="btn btn-primary" onclick="simple_action(&quot;{{ url_for('main.tvshow_review', tvshow_id=tvshow.id) }}&quot;)">Write Review</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="simple_action(&quot;{{ url_for('main.home') }}&quot;)">Go Back</button>
+        </div>
+    </div> 
+</div>
+<div style = "padding-top: 2vh;">
+    <h3 style="text-align: center; "> TV Show Reviews </h3>
+    {% if reviews %}
+        {% for review in reviews %}
+        <div style = "background-color: rgb(211, 211, 211); border-radius: 15px;">
+            <div style = "display: flex; flex-direction: column;">  
+                <p> User: {{review.author.username}}    </p> 
+                <p> Rating: {{review.rating}}           </p>
+                <p> Review Date: {{review.created_at.year}}/{{review.created_at.month}}/{{review.created_at.day}}  </p>
+            </div>
+            <div style = "display: flex; flex-direction: row;"> <p> Comment: {{review.comment}}  </p> </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center">Be The First To Review This TV Show!</p>
+    {% endif %} 
 </div>
 {% endblock %}

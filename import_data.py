@@ -38,19 +38,20 @@ def import_data(csv_filepath):
                         skipped_rows += 1
                         continue
 
-                    poster_url = fetch_poster(title, 'movie')  # Fetch poster URL
+                    # poster_url = fetch_poster(title, 'movie')  # Fetch poster URL
+
                     movie = Movie(
                         title=title,
                         genre=genres,
                         averageRating=averageRating,
                         numVotes=numVotes,
                         releaseYear=releaseYear,
-                        poster_url=poster_url or 'https://via.placeholder.com/300x450.png?text=No+Image'
+                        poster_url = 'https://via.placeholder.com/300x450.png?text=No+Image'
                     )
                     db.session.add(movie)
                     imported_movies += 1
 
-                elif type_ == 'tvshow':
+                elif type_ == 'tvseries':
                     # Check if the TV show already exists to avoid duplicates
                     existing_tvshow = TVShow.query.filter_by(title=title).first()
                     if existing_tvshow:
@@ -65,7 +66,8 @@ def import_data(csv_filepath):
                     description = 'No description available.'
                     rating = 5  # Default rating
 
-                    poster_url = fetch_poster(title, 'series')  # Fetch poster URL
+                    # poster_url = fetch_poster(title, 'series')  # Fetch poster URL
+                   
                     tvshow = TVShow(
                         title=title,
                         genre=genres,
@@ -73,8 +75,8 @@ def import_data(csv_filepath):
                         episodes=episodes,
                         release_date=release_date,
                         description=description,
-                        rating=rating,
-                        poster_url=poster_url or 'https://via.placeholder.com/300x450.png?text=No+Image'
+                        rating=averageRating,
+                        poster_url = 'https://via.placeholder.com/300x450.png?text=No+Image'
                     )
                     db.session.add(tvshow)
                     imported_tvshows += 1

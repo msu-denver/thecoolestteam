@@ -3,9 +3,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt
 from utils import fetch_poster
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
-from app.forms import RegistrationForm, LoginForm, ProfileForm
+from app.forms import RegistrationForm, LoginForm, ProfileForm, ReviewForm
 from sqlalchemy.sql.expression import func
 import random
+from datetime import datetime
 
 # Initialize Blueprint
 main = Blueprint('main', __name__)
@@ -56,16 +57,119 @@ def logout():
 def mainpage():
     return render_template('mainpage.html')  # Ensure this template exists
 
-## MOVIE AND TV PAGE ROUTES ##
-@main.route('/movie/<int:movie_id>')
+
+## MOVIE ROUTE ##
+
+@main.route('/movie/<int:movie_id>', methods=['GET', 'POST'])
 def movie_detail(movie_id):
     movie = Movie.query.get_or_404(movie_id)
-    return render_template('movie_detail.html', movie=movie)
+    reviews =  Review.query.filter_by(movie_id = movie.id).all()
 
-@main.route('/tvshow/<int:tvshow_id>')
+    if movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
+
+        movie.poster_url = fetch_poster(movie.title, 'movie')
+        db.session.commit()
+
+    return render_template('movie_detail.html', movie=movie, reviews=reviews)
+
+
+## TV SHOW ROUTE ##
+@main.route('/tvshow/<int:tvshow_id>', methods=['GET', 'POST'])
 def tvshow_detail(tvshow_id):
-    tv_show = TVShow.query.get_or_404(tvshow_id)
-    return render_template('tvshow_detail.html', tv_show=tvshow)
+    tvshow = TVShow.query.get_or_404(tvshow_id)
+    reviews =  Review.query.filter_by(tvshow_id = tvshow.id).all()
+    
+    if tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None:
+        tvshow.poster_url = fetch_poster(tvshow.title, 'series')
+        db.session.commit()
+
+    return render_template('tvshow_detail.html', tvshow=tvshow, reviews=reviews)
+
+
+## MOVIE REVIEW ROUTE ##
+@main.route('/movie_review/<int:movie_id>', methods=['GET', 'POST'])
+@login_required
+def movie_review(movie_id):
+    form = ReviewForm()
+    lastReview = db.session.query(Review).order_by(Review.id.desc()).first() # obtains most recent review in database
+    movie =  Movie.query.filter_by(id=movie_id).first()
+    newID = 0
+
+    for user_review in current_user.reviews:
+        if user_review.movie_id == movie_id:
+            flash('You already have a review for this movie', 'danger')
+            return redirect(url_for('main.movie_detail', movie_id=movie_id))
+
+    if lastReview != None:
+        newID = lastReview.id + 1 
+
+    if form.validate_on_submit(): 
+
+        try:
+        
+            review = Review (id=newID,
+                            user_id=current_user.id, 
+                            rating=form.rating.data, 
+                            comment=form.comment.data, 
+                            movie_id=movie_id, 
+                            author=current_user)
+            
+            db.session.add(review)
+            db.session.commit()
+
+        except Exception as e:
+                
+                db.session.rollback()  # Rollback in case of an error
+                flash(e, 'danger')
+                return render_template('movie_review.html', form=form, movie=movie)
+
+        return redirect(url_for('main.movie_detail', movie_id=movie_id))
+    
+    return render_template('movie_review.html', form=form, movie=movie)
+
+
+## TV REVIEW ROUTE ##
+@main.route('/tvshow_review/<int:tvshow_id>', methods=['GET', 'POST'])
+@login_required
+def tvshow_review(tvshow_id):
+    form = ReviewForm()
+    lastReview = db.session.query(Review).order_by(Review.id.desc()).first() # obtains most recent review in database
+    tvshow =  TVShow.query.filter_by(id=tvshow_id).first()
+    newID = 0
+
+    for user_review in current_user.reviews:
+        if user_review.tvshow_id == tvshow_id:
+            flash('You already have a review for this tv show', 'danger')
+            return redirect(url_for('main.tvshow_detail', tvshow_id=tvshow_id))
+
+    if lastReview != None:
+        newID = lastReview.id + 1 
+
+    if form.validate_on_submit(): 
+        
+        try:
+
+            review = Review (id=newID,
+                            user_id=current_user.id, 
+                            rating=form.rating.data, 
+                            comment=form.comment.data, 
+                            tvshow_id=tvshow_id,
+                            author=current_user)
+            
+            db.session.add(review)
+            db.session.commit()
+        
+        except Exception as e:
+                
+                db.session.rollback()  # Rollback in case of an error
+                flash(e, 'danger')
+                return render_template('tvshow_review.html', form=form, tvshow=tvshow)
+
+        return redirect(url_for('main.tvshow_detail', tvshow_id=tvshow_id))
+    
+    return render_template('tvshow_review.html', form=form, tvshow=tvshow)
+
+  
 
 @main.route('/profile/settings', methods=['GET', 'POST'])
 @login_required
@@ -196,4 +300,5 @@ def internal_error(error):
 def debug_db():
     movie_count = Movie.query.count()
     tvshow_count = TVShow.query.count()
-    return f"Movies: {movie_count}, TV Shows: {tvshow_count}"
+
+    return f"Movies: {movie_count}, TV Shows: {tvshow_count}, Current User ID:{current_user.id}"
