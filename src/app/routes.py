@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt
 from utils import fetch_poster
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, ProfileForm
 from sqlalchemy.sql.expression import func
 import random
 
@@ -67,10 +67,46 @@ def tvshow_detail(tvshow_id):
     tv_show = TVShow.query.get_or_404(tvshow_id)
     return render_template('tvshow_detail.html', tv_show=tvshow)
 
+@main.route('/profile/settings', methods=['GET', 'POST'])
+@login_required
+def profile_settings():
+    form = ProfileForm()
+    if form.validate_on_submit():
+        # Update the user's password
+        if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
+            flash('Passwords do not match', 'danger')
+            return redirect(url_for('main.profile'))  # Redirect to profile page
+        
+        current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+        db.session.commit()  # Save changes to the database
+        flash('Succesfully Changed Password', 'success')
+        return redirect(url_for('main.profile'))  # Redirect to profile page
+
+    return render_template('profile_settings.html', form=form)
+
 @main.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html')
+
+@main.route('/admin')
+@login_required
+def admin():
+    if current_user.is_admin == False:
+        flash("You are not authorized to access this page.")
+        return redirect(url_for('main.home'))
+    
+    if current_user.id == id:
+        flash("You cannot change your own admin status.")
+        return redirect(url_for('main.admin'))
+    
+    user = User.query.get(id)
+    if user:
+        user.is_admin = not user.is_admin
+        db.session.commit()
+        flash(f"User {user.username} is now {'an admin' if user.is_admin else 'not an admin'}")
+    
+    return render_template('admin.html')
 
 @main.route('/favorites')
 @login_required
@@ -141,25 +177,6 @@ def autocomplete():
 
     return jsonify(results)
 
-@main.route('/toggle_admin/<id>', methods=['POST'])
-@login_required
-def toggle_admin(id):
-    #Toggle user admin permissions
-    if not current_user.admin:
-        flash("You are not authorized to access this page.")
-        return redirect(url_for('index'))
-    
-    if current_user.id == id:
-        flash("You cannot change your own admin status.")
-        return redirect(url_for('admin'))
-    
-    user = User.query.get(id)
-    if user:
-        user.admin = not user.admin
-        db.session.commit()
-        flash(f"User {user.name} is now {'an admin' if user.admin else 'not an admin'}")
-    
-    return redirect(url_for('admin'))
 
 ## ERROR HANDLING ##
 

@@ -9,4 +9,9 @@
         <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
         <!-- Add more user details as needed -->
     </ul>
+    
+    <a href="{{ url_for('main.profile_settings') }}" class="btn btn-secondary mt-3">Go to Profile Settings</a>
+    {% if is_admin %}
+    <a href="{{ url_for('main.admin') }}" class="btn btn-secondary mt-3">Go to Admin Page</a>
+    {% endif %}
 {% endblock %}

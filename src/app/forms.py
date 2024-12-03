@@ -40,3 +40,8 @@ class LoginForm(FlaskForm):
     ])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class ProfileForm(FlaskForm):
+    oldPassword = StringField('Old Password', validators=[DataRequired()])
+    newPassword = StringField('New Password', validators=[DataRequired()])
+    submit = SubmitField('Change Password')
