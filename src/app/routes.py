@@ -179,16 +179,16 @@ def profile_settings():
         # Update the user's password
         if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
             flash('Passwords do not match', 'danger')
-            return redirect(url_for('main.profile'))  # Redirect to profile page
+            return redirect(url_for('main.profile_settings'))  # Redirect to profile page
         
         current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
         db.session.commit()  # Save changes to the database
         flash('Succesfully Changed Password', 'success')
-        return redirect(url_for('main.profile'))  # Redirect to profile page
+        return redirect(url_for('main.profile_settings'))  # Redirect to profile page
 
     return render_template('profile_settings.html', form=form)
 
-@main.route('/profile')
+@main.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     return render_template('profile.html')

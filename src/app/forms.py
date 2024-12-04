@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, Optional
 from app.models import User
 
 class RegistrationForm(FlaskForm):
@@ -55,6 +55,10 @@ class ReviewForm(FlaskForm):
     submit = SubmitField('Post Review')
     
 class ProfileForm(FlaskForm):
-    oldPassword = StringField('Old Password', validators=[DataRequired()])
-    newPassword = StringField('New Password', validators=[DataRequired()])
-    submit = SubmitField('Change Password')
+    oldPassword = StringField('Old Password', validators=[Optional()])
+    newPassword = StringField('New Password', validators=[Optional()])
+    newEmail = StringField('New Email', validators=[Optional()])
+    newUsername = StringField('New Username', validators=[Optional()])
+    changePassword = SubmitField('Change Password')
+    changeEmail = SubmitField('Change Email')
+    changeUsername = SubmitField('Change Username')
