@@ -30,17 +30,25 @@
     <h3 style="text-align: center; "> Movie Reviews </h3>
     {% if reviews %}
         {% for review in reviews %}
-        <div style = "background-color: rgb(211, 211, 211); border-radius: 15px;">
-            <div style = "display: flex; flex-direction: column;">  
-                <p> User: {{review.author.username}}    </p> 
-                <p> Rating: {{review.rating}}           </p>
+        <div class="container" tabindex="-1">
+            <div class="bg-body-tertiary p-3 rounded">
+                <h5>User: {{review.author.username}}</h5>
+                <hr>
+                <p>Rating: {{review.rating}} </p>
                 <p> Review Date: {{review.created_at.year}}/{{review.created_at.month}}/{{review.created_at.day}}  </p>
+                <p> {{review.comment}} </p>
             </div>
-            <div style = "display: flex; flex-direction: row;"> <p> Comment: {{review.comment}}  </p> </div>
         </div>
+        <p></p>
         {% endfor %}
     {% else %}
         <p style="text-align: center">Be The First To Review This Movie!</p>
     {% endif %} 
 </div>
 {% endblock %}
+
+
+
+
+  
+  
