@@ -2,59 +2,46 @@
 --- Proof Of Concept Web scraper for imdb ---
 
 Description: 
-A tool that uses selenium to scrape any given imdb page for a link to its associated trailer.
+A tool that uses requests to scrape any given imdb page for a link to its associated trailer.
 Only use this tool to obtain a link once, then cache it. each link eventually expires. Using this tool
 too much could potentially get you ip banned (from imdb).
-
-Use case's: 
-this tool could be setup in a container which takes requests and returns data to other containers.
 '''
 
-import timeit
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
+from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-
-class ImdbScraper(): 
-
-    def __init__(self, ID = "") -> None:
-
-        ua = UserAgent() # obtains fake user agent data
-
-        self.options = webdriver.ChromeOptions()
-        self.options.add_argument(f'user-agent={ua.chrome}') # passes fake user agent info to get past 403
-        self.options.add_argument('--headless')              # runs chrome without UI
-        self.options.add_argument('--log-level=3')           # ignores SSL errors
-
-        self.browser = webdriver.Chrome(self.options)      
-        self.browser.get(f'https://www.imdb.com/title/{ID}/')
-        # self.browser.get_screenshot_as_file("screenshot.png")
+import re
     
-    def videoScraper(self):
+def videoScraper(ID):
 
-        try:
+    ua = UserAgent()
 
-            WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.TAG_NAME, "video")))  # 10 second timeout
-            videoElement = self.browser.find_elements(By.TAG_NAME, 'video')[0]                             # locates video
-            videoSrc = videoElement.get_attribute('src')                                                  
+    headers = {'User-Agent': f'{ua.chrome}'}
+    response = requests.get(f'https://www.imdb.com/title/{ID}/', headers=headers)
 
-            return videoSrc
+    if response.status_code == 200: 
+    
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        JScript = str(soup.find(id='__NEXT_DATA__'))[4000:7000]
+
+        videoElementPassOne = re.search(r"https:\/\/imdb-video\.media-imdb\.com[^\"]*", JScript) # obtains video using regular expression
+
+        if videoElementPassOne == None: # for when no trailer exists
+            print("no trailer exists")
+            return "N/A"
         
-        except Exception:
+        videoElementPassTwo = videoElementPassOne.group() 
+        videoElementPassTwo = videoElementPassTwo.replace("\\u0026", "&")
 
-            self.browser.quit()
-            print("an error occured when scraping") 
-
-        return None
+        return videoElementPassTwo
+    
+    print("Bad Repsonse")
+    return "N/A"
 
 if __name__ == '__main__':
+     
+    print (videoScraper('tt0000009')) # replace with any movie id
     
-    start = timeit.timeit()
-    videoElement = ImdbScraper("tt0482571")
-    end = timeit.timeit()
 
-    print("\nTime to execute: ",end - start)
-    print("\nVideo Element: ")
-    print(videoElement.videoScraper())
+
