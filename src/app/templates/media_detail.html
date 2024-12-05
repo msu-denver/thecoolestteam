@@ -14,12 +14,23 @@
 <div class="d-flex justify-content-center mt-5">
     <div class="text-center">
         <h2>{{ media.title }}</h2>
-        <img src="{{ media.poster_url }}" alt="{{ media.title }} Poster" class="img-fluid my-3" style="max-width: 300px; border-radius: 15px;">
 
-        <p><strong>Type:</strong> {{ 'TV Show' if media_type == 'tvshow' else 'Movie' }}</p>
+        <div class="d-flex justify-content-center mt-5">
+            <img src="{{ media.poster_url }}" alt="{{ media.title }} Poster" class="img-fluid my-3" style="max-width: 300px; border-radius: 15px;">
+
+            {% if trailer %}
+                <p style="padding-right: 1vh;">   </p>
+                <video style="border-radius: 15px; background-color: black;" width="420" height="444" controls="" class="img-fluid my-3">
+                    <source src="{{ trailer }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% endif %}
+        </div>
+
+        <p style = "padding-top: 2vh;"><strong>Type:</strong> {{ 'TV Show' if media_type == 'tvshow' else 'Movie' }}</p>
 
         {% if media.release_date %}
-            <p><strong>Release Year:</strong> {{ media.release_date.year }}</p>
+            <p ><strong>Release Year:</strong> {{ media.release_date.year }}</p>
         {% else %}
             <p><strong>Release Year:</strong> N/A </p>
         {% endif %}
