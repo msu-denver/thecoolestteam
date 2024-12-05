@@ -10,10 +10,17 @@
     {% block head %}{% endblock %}
     <style>
         .navbar-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50%;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-center .navbar-brand {
+            margin-right: 10px;
+        }
+
+        .navbar-center .form-control {
+            width: 300px;
         }
 
         @media (max-width: 992px) {
@@ -24,124 +31,87 @@
                 margin-top: 10px;
             }
         }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            top: 100%;
+            left: 0;
+        }
+
+        .autocomplete-dropdown .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .autocomplete-dropdown .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <!-- Brand -->
-            <a class="navbar-brand" href="{{ url_for('main.home') }}">CoolestTeam</a>
             <!-- Toggler for responsive navbar -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <!-- Navbar Content -->
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Centered Search Bar -->
-                <form class="d-flex navbar-center position-relative" id="search-form"
-                    action="{{ url_for('main.search') }}" method="GET">
-                    <!-- Search Input -->
-                    <div class="w-100 position-relative">
-                        <input class="form-control me-2" type="search" id="search-input"
-                            placeholder="Search for movies or TV shows..." aria-label="Search" name="query"
-                            autocomplete="off" required>
-
-                        <!-- Autocomplete Dropdown -->
-                        <ul id="autocomplete-list" class="list-group position-absolute w-100"
-                            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto;"></ul>
-                    </div>
-
-                    <!-- Search Button -->
-                    <button class="btn btn-outline-success ms-2" type="submit">Search</button>
-                </form>
-                <script>
-                    const searchInput = document.getElementById("search-input");
-                    const autocompleteList = document.getElementById("autocomplete-list");
-
-                    // Handle input event on the search bar
-                    searchInput.addEventListener("input", function () {
-                        const query = this.value;
-
-                        if (query.length > 1) {
-                            // Fetch autocomplete results
-                            fetch(`/autocomplete?query=${query}`)
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    autocompleteList.innerHTML = ""; // Clear previous results
-
-                                    // Populate the autocomplete dropdown
-                                    if (data.length) {
-                                        data.forEach((item) => {
-                                            const li = document.createElement("li");
-                                            li.classList.add("list-group-item");
-                                            li.textContent = `${item.title} (${item.type})`;
-                                            li.style.cursor = "pointer";
-
-                                            // Redirect to the appropriate detail page on click
-                                            li.addEventListener("click", () => {
-                                                if (item.type === "movie") {
-                                                    window.location.href = `/movie/${item.id}`;
-                                                } else if (item.type === "tv_show") {
-                                                    window.location.href = `/tvshow/${item.id}`;
-                                                }
-                                            });
-
-                                            autocompleteList.appendChild(li);
-                                        });
-                                    } else {
-                                        autocompleteList.innerHTML = `<li class="list-group-item">No results found</li>`;
-                                    }
-                                })
-                                .catch((error) => console.error("Error fetching autocomplete data:", error));
-                        } else {
-                            autocompleteList.innerHTML = ""; // Clear suggestions if query is too short
-                        }
-                    });
-
-                    // Close dropdown when clicking outside
-                    document.addEventListener("click", function (event) {
-                        if (!autocompleteList.contains(event.target) && event.target !== searchInput) {
-                            autocompleteList.innerHTML = "";
-                        }
-                    });
-                </script>
-                <!-- Right-aligned navigation links -->
-                {% if current_user.is_authenticated %}
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <!-- Dropdown Menu -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Menu
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ url_for('main.favorites') }}">Favorites</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.random_route') }}">Random</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sign Out</a></li>
-                        </ul>
-                    </li>
-                    <!-- Username Link -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.profile') }}">{{ current_user.username }}</a>
-                    </li>
+                <div class="navbar-center position-relative">
+                    <a class="navbar-brand" href="{{ url_for('main.home') }}">CoolestTeam</a>
+                    <form class="d-flex" action="{{ url_for('main.search') }}" method="get">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query" id="search-input">
+                        <button class="btn btn-outline-success me-2" type="submit">Search</button>
+                        <a class="btn btn-outline-primary" href="{{ url_for('main.random_route') }}">Random</a>
+                        <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+                    </form>
+                </div>
+                <ul class="navbar-nav ms-auto">
+                    <!-- Right-aligned navigation links -->
+                    {% if current_user.is_authenticated %}
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <!-- Dropdown Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Menu
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('main.favorites') }}">Favorites</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sign Out</a></li>
+                            </ul>
+                        </li>
+                        <!-- Username Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.profile') }}">{{ current_user.username }}</a>
+                        </li>
+                    </ul>
+                    {% else %}
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.signup') }}">Sign Up</a>
+                        </li>
+                    </ul>
+                    {% endif %}
                 </ul>
-                {% else %}
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.signup') }}">Sign Up</a>
-                    </li>
-                </ul>
-                {% endif %}
             </div>
         </div>
     </nav>
@@ -170,7 +140,39 @@
             window.location.replace(target);
         }
     </script>
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const dropdown = document.getElementById('autocomplete-dropdown');
+
+            searchInput.addEventListener('input', function() {
+                const query = searchInput.value;
+                if (query.length > 2) {
+                    fetch(`{{ url_for('main.autocomplete') }}?query=${query}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            dropdown.innerHTML = '';
+                            data.forEach(item => {
+                                const dropdownItem = document.createElement('a');
+                                dropdownItem.classList.add('dropdown-item');
+                                dropdownItem.href = `{{ url_for('main.media_detail', media_type='__type__', media_id='__id__') }}`.replace('__type__', item.type).replace('__id__', item.id);
+                                dropdownItem.textContent = item.title;
+                                dropdown.appendChild(dropdownItem);
+                            });
+                            dropdown.style.display = 'block';
+                        });
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

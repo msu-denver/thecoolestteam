@@ -20,21 +20,92 @@
             <p><strong>Average Rating:</strong> N/A </p>
         {% endif %}
 
-        <div class = "d-grid gap-2">
-            <button type="button" class="btn btn-primary" onclick="simple_action(&quot;{{ url_for('main.tvshow_review', tvshow_id=tvshow.id) }}&quot;)">Write Review</button>
-            <button type="button" class="btn btn-outline-secondary" onclick="simple_action(&quot;{{ url_for('main.home') }}&quot;)">Go Back</button>
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">Write Review</button>
+            <button type="button" class="btn btn-outline-success" onclick="addToFavorites('tvshow', '{{ tvshow.id }}')">Add to Favorites</button>
         </div>
     </div> 
 </div>
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <div id="starRating" class="star-rating">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="rating" name="rating" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.star-rating .star').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.getAttribute('data-value');
+        document.getElementById('rating').value = rating;
+        document.querySelectorAll('.star-rating .star').forEach(s => {
+            s.style.color = s.getAttribute('data-value') <= rating ? 'gold' : 'gray';
+        });
+    });
+});
+
+document.getElementById('reviewForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const rating = document.getElementById('rating').value;
+    const comment = document.getElementById('comment').value;
+    fetch("{{ url_for('main.tvshow_review', tvshow_id=tvshow.id) }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ rating: rating, comment: comment })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error submitting review');
+        }
+    });
+});
+</script>
 <div style = "padding-top: 2vh;">
     <h3 style="text-align: center; "> TV Show Reviews </h3>
     {% if reviews %}
         {% for review in reviews %}
         <div class="container" tabindex="-1">
             <div class="bg-body-tertiary p-3 rounded">
-                <h5>User: {{review.author.username}}</h5>
+                <h5>User: {{review.author.username}}
+                    {% if current_user.is_admin %}
+                        <button class="btn btn-danger btn-sm float-end" onclick="confirmDelete('{{ url_for('main.delete_review', review_id=review.id) }}')">X</button>
+                    {% endif %}
+                </h5>
                 <hr>
-                <p>Rating: {{review.rating}}</p>
+                <p>Rating: 
+                    {% for i in range(1, 6) %}
+                        <span class="star {% if i <= review.rating %}gold{% else %}gray{% endif %}">&#9733;</span>
+                    {% endfor %}
+                </p>
                 <p>Review Date: {{review.created_at.year}}/{{review.created_at.month}}/{{review.created_at.day}}</p>
                 <p>{{review.comment}}</p>
             </div>
@@ -45,4 +116,33 @@
         <p style="text-align: center">Be The First To Review This TV Show!</p>
     {% endif %} 
 </div>
+<!-- Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this review?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" class="btn btn-danger">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function confirmDelete(url) {
+    const deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = url;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+</script>
 {% endblock %}

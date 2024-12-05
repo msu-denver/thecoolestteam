@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ movie.title }} - Details{% endblock %}
+{% block title %}{{ media.title }} - Details{% endblock %}
 
 {% block content %}
 <style>
@@ -13,29 +13,76 @@
 </style>
 <div class="d-flex justify-content-center mt-5">
     <div class="text-center">
-        <h2>{{ movie.title }}</h2>
-        <img src="{{ movie.poster_url }}" alt="{{ movie.title }} Poster" class="img-fluid my-3" style="max-width: 300px; border-radius: 15px;">
+        <h2>{{ media.title }}</h2>
+        <img src="{{ media.poster_url }}" alt="{{ media.title }} Poster" class="img-fluid my-3" style="max-width: 300px; border-radius: 15px;">
 
-        {% if movie.releaseYear %}
-            <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
+        <p><strong>Type:</strong> {{ 'TV Show' if media_type == 'tvshow' else 'Movie' }}</p>
+
+        {% if media.release_date %}
+            <p><strong>Release Year:</strong> {{ media.release_date.year }}</p>
         {% else %}
             <p><strong>Release Year:</strong> N/A </p>
         {% endif %}
 
-        {% if movie.averageRating %}
-            <p><strong>Average Rating:</strong> {{ movie.averageRating }}/10</p>
-        {% else %}
-            <p><strong>Average Rating:</strong> N/A </p>
+        {% if media_type == 'movie' %}
+            {% if media.genre %}
+                <p><strong>Genre:</strong> {{ media.genre }}</p>
+            {% endif %}
+            {% if media.rating %}
+                <p><strong>Average Rating:</strong> {{ media.rating }}/10</p>
+            {% else %}
+                <p><strong>Average Rating:</strong> N/A </p>
+            {% endif %}
+        {% elif media_type == 'tvshow' %}
+            {% if media.seasons %}
+                <p><strong>Seasons:</strong> {{ media.seasons }}</p>
+            {% endif %}
+            {% if media.episodes %}
+                <p><strong>Episodes:</strong> {{ media.episodes }}</p>
+            {% endif %}
+            {% if media.genre %}
+                <p><strong>Genre:</strong> {{ media.genre }}</p>
+            {% endif %}
+            {% if media.description %}
+                <p><strong>Description:</strong> {{ media.description }}</p>
+            {% endif %}
+            {% if media.rating %}
+                <p><strong>Average Rating:</strong> {{ media.rating }}/10</p>
+            {% else %}
+                <p><strong>Average Rating:</strong> N/A </p>
+            {% endif %}
         {% endif %}
 
         <div class="d-grid gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">Write Review</button>
-            <button type="button" class="btn btn-outline-success" onclick="addToFavorites('movie', '{{ movie.id }}')">Add to Favorites</button>
+            <button type="button" class="btn btn-outline-success" id="favoriteButton" onclick="toggleFavorite('{{ media_type }}', '{{ media.id }}')">
+                {% if media in current_user.favorites %}
+                    Remove from Favorites
+                {% else %}
+                    Add to Favorites
+                {% endif %}
+            </button>
         </div>
     </div> 
 </div>
-<div style = "padding-top: 2vh;">
-    <h3 style="text-align: center; "> Movie Reviews </h3>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmationMessage">
+                <!-- Message will be set dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="padding-top: 2vh;">
+    <h3 style="text-align: center;">{{ media_type|capitalize }} Reviews</h3>
     {% if reviews %}
         {% for review in reviews %}
         <div class="container" tabindex="-1">
@@ -51,14 +98,14 @@
                         <span class="star {% if i <= review.rating %}gold{% else %}gray{% endif %}">&#9733;</span>
                     {% endfor %}
                 </p>
-                <p> Review Date: {{review.created_at.year}}/{{review.created_at.month}}/{{review.created_at.day}}  </p>
-                <p> {{review.comment}} </p>
+                <p>Review Date: {{ review.created_at.year }}/{{ review.created_at.month }}/{{ review.created_at.day }}</p>
+                <p>{{ review.comment }}</p>
             </div>
         </div>
         <p></p>
         {% endfor %}
     {% else %}
-        <p style="text-align: center">Be The First To Review This Movie!</p>
+        <p style="text-align: center">Be The First To Review This {{ media_type|capitalize }}!</p>
     {% endif %}
 </div>
 <!-- Confirmation Modal -->
@@ -127,7 +174,7 @@ document.getElementById('reviewForm').addEventListener('submit', function(event)
     event.preventDefault();
     const rating = document.getElementById('rating').value;
     const comment = document.getElementById('comment').value;
-    fetch("{{ url_for('main.movie_review', movie_id=movie.id) }}", {
+    fetch("{{ url_for('main.media_detail', media_type=media_type, media_id=media.id) }}", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -145,6 +192,33 @@ document.getElementById('reviewForm').addEventListener('submit', function(event)
     });
 });
 
+function toggleFavorite(mediaType, mediaId) {
+    const favoriteButton = document.getElementById('favoriteButton');
+    const isFavorite = favoriteButton.textContent.includes('Remove from Favorites');
+    const url = isFavorite ? 
+        `{{ url_for('main.remove_from_favorites', media_type='__type__', media_id='__id__') }}`.replace('__type__', mediaType).replace('__id__', mediaId) :
+        `{{ url_for('main.add_to_favorites', media_type='__type__', media_id='__id__') }}`.replace('__type__', mediaType).replace('__id__', mediaId);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('confirmationMessage').textContent = data.message;
+            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
+            favoriteButton.textContent = isFavorite ? 'Add to Favorites' : 'Remove from Favorites';
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
 function confirmDelete(url) {
     const deleteForm = document.getElementById('deleteForm');
     deleteForm.action = url;
@@ -152,9 +226,4 @@ function confirmDelete(url) {
     deleteModal.show();
 }
 </script>
-{% endblock %}
-
-
-
-
-
+{% endblock %} 

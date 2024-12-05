@@ -7,9 +7,15 @@ from app.forms import RegistrationForm, LoginForm, ProfileForm, ReviewForm
 from sqlalchemy.sql.expression import func
 import random
 from datetime import datetime
+from flask_wtf import FlaskForm
+from flask_caching import Cache
+
+class DeleteForm(FlaskForm):
+    pass
 
 # Initialize Blueprint
 main = Blueprint('main', __name__)
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 @main.route('/')
 def home():
@@ -58,91 +64,54 @@ def mainpage():
     return render_template('mainpage.html')  # Ensure this template exists
 
 
-# MOVIE DETAIL ROUTE
-@main.route('/movie/<string:movie_id>', methods=['GET', 'POST'])
-def movie_detail(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
-    reviews = Review.query.filter_by(movie_id=movie.id).all()
-    if movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
-        movie.poster_url = fetch_poster(movie.title, 'movie')
+# MEDIA DETAIL ROUTE
+@main.route('/media/<string:media_type>/<string:media_id>', methods=['GET', 'POST'])
+def media_detail(media_type, media_id):
+    if media_type == 'movie':
+        media = Movie.query.get_or_404(media_id)
+    else:
+        media = TVShow.query.get_or_404(media_id)
+    
+    reviews = Review.query.filter_by(movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).all()
+    delete_form = DeleteForm()
+    
+    if media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
+        media.poster_url = fetch_poster(media.title, 'movie' if media_type == 'movie' else 'series')
         db.session.commit()
-    return render_template('movie_detail.html', movie=movie, reviews=reviews)
+    
+    if request.method == 'POST':
+        data = request.get_json()
+        rating = data.get('rating')
+        comment = data.get('comment')
+        newID = db.session.query(func.max(Review.id)).scalar() + 1 if db.session.query(func.max(Review.id)).scalar() else 1
 
+        if media_type == 'movie':
+            for user_review in current_user.reviews:
+                if user_review.movie_id == media_id:
+                    return jsonify({'success': False, 'message': 'You already have a review for this movie'})
+        else:
+            for user_review in current_user.reviews:
+                if user_review.tvshow_id == media_id:
+                    return jsonify({'success': False, 'message': 'You already have a review for this TV show'})
 
-# TV SHOW DETAIL ROUTE
-@main.route('/tvshow/<string:tvshow_id>', methods=['GET', 'POST'])
-def tvshow_detail(tvshow_id):
-    tvshow = TVShow.query.get_or_404(tvshow_id)
-    reviews = Review.query.filter_by(tvshow_id=tvshow.id).all()
-    if tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None:
-        tvshow.poster_url = fetch_poster(tvshow.title, 'series')
-        db.session.commit()
-    return render_template('tvshow_detail.html', tvshow=tvshow, reviews=reviews)
-
-# MOVIE REVIEW ROUTE
-@main.route('/movie_review/<string:movie_id>', methods=['GET', 'POST'])
-@login_required
-def movie_review(movie_id):
-    form = ReviewForm()
-    lastReview = db.session.query(Review).order_by(Review.id.desc()).first()
-    movie = Movie.query.filter_by(id=movie_id).first()
-    newID = 0
-    for user_review in current_user.reviews:
-        if user_review.movie_id == movie_id:
-            flash('You already have a review for this movie', 'danger')
-            return redirect(url_for('main.movie_detail', movie_id=movie_id))
-    if lastReview is not None:
-        newID = lastReview.id + 1 
-    if form.validate_on_submit(): 
         try:
             review = Review(
                 id=newID,
                 user_id=current_user.id, 
-                rating=form.rating.data, 
-                comment=form.comment.data, 
-                movie_id=movie_id, 
+                rating=rating, 
+                comment=comment, 
+                movie_id=media_id if media_type == 'movie' else None,
+                tvshow_id=media_id if media_type == 'tvshow' else None,
                 author=current_user
             )
             db.session.add(review)
             db.session.commit()
+            return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
-            flash(e, 'danger')
-            return render_template('movie_review.html', form=form, movie=movie)
-    return render_template('movie_review.html', form=form, movie=movie)
+            return jsonify({'success': False, 'message': str(e)})
 
-# TV SHOW REVIEW ROUTE
-@main.route('/tvshow_review/<string:tvshow_id>', methods=['GET', 'POST'])
-@login_required
-def tvshow_review(tvshow_id):
-    form = ReviewForm()
-    lastReview = db.session.query(Review).order_by(Review.id.desc()).first()
-    tvshow = TVShow.query.filter_by(id=tvshow_id).first()
-    newID = 0
-    for user_review in current_user.reviews:
-        if user_review.tvshow_id == tvshow_id:
-            flash('You already have a review for this TV show', 'danger')
-            return redirect(url_for('main.tvshow_detail', tvshow_id=tvshow_id))
-    if lastReview is not None:
-        newID = lastReview.id + 1 
-    if form.validate_on_submit(): 
-        try:
-            review = Review(
-                id=newID,
-                user_id=current_user.id, 
-                rating=form.rating.data, 
-                comment=form.comment.data, 
-                tvshow_id=tvshow_id,
-                author=current_user
-            )
-            db.session.add(review)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            flash(e, 'danger')
-            return render_template('tvshow_review.html', form=form, tvshow=tvshow)
-    return render_template('tvshow_review.html', form=form, tvshow=tvshow)
-  
+    return render_template('media_detail.html', media=media, reviews=reviews, form=delete_form, media_type=media_type)
 
 @main.route('/profile/settings', methods=['GET', 'POST'])
 @login_required
@@ -185,11 +154,54 @@ def admin():
     
     return render_template('admin.html')
 
+@main.route('/add_to_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
+@login_required
+def add_to_favorites(media_type, media_id):
+    if media_type == 'movie':
+        media = Movie.query.get_or_404(media_id)
+    else:
+        media = TVShow.query.get_or_404(media_id)
+    
+    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
+    if favorite:
+        return jsonify({'success': False, 'message': f'{media.title} is already in your favorites.'})
+    
+    favorite = Favorite(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None)
+    db.session.add(favorite)
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'{media.title} has been added to your favorites.'})
+
+@main.route('/remove_from_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
+@login_required
+def remove_from_favorites(media_type, media_id):
+    if media_type == 'movie':
+        media = Movie.query.get_or_404(media_id)
+    else:
+        media = TVShow.query.get_or_404(media_id)
+    
+    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
+    if favorite:
+        db.session.delete(favorite)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{media.title} has been removed from your favorites.'})
+    return jsonify({'success': False, 'message': f'{media.title} is not in your favorites.'})
+
+@main.route('/clear_favorites', methods=['POST'])
+@login_required
+def clear_favorites():
+    favorites = Favorite.query.filter_by(user_id=current_user.id).all()
+    for favorite in favorites:
+        db.session.delete(favorite)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'All favorites have been cleared.'})
+
 @main.route('/favorites')
 @login_required
 def favorites():
     user_favorites = current_user.favorites.all()
-    return render_template('favorites.html', favorites=user_favorites)
+    favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
+    favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
+    return render_template('favorites.html', favorite_movies=favorite_movies, favorite_tvshows=favorite_tvshows)
 
 # RANDOM ROUTE
 @main.route('/random')
@@ -198,26 +210,18 @@ def random_route():
     choice = random.choice(['movie', 'tvshow'])
     
     if choice == 'movie':
-        random_movie = Movie.query.order_by(func.random()).first()
-        if random_movie:
-            if not random_movie.poster_url or random_movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
-                random_movie.poster_url = fetch_poster(random_movie.title, 'movie')
-                db.session.commit()
-            return render_template('movie_detail.html', movie=random_movie)
-        else:
-            flash('No movies available.', 'warning')
-            return redirect(url_for('main.mainpage'))
-    
+        random_media = Movie.query.order_by(func.random()).first()
     else:
-        random_tvshow = TVShow.query.order_by(func.random()).first()
-        if random_tvshow:
-            if not random_tvshow.poster_url or random_tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
-                random_tvshow.poster_url = fetch_poster(random_tvshow.title, 'series')
-                db.session.commit()
-            return render_template('tvshow_detail.html', tvshow=random_tvshow)
-        else:
-            flash('No TV shows available.', 'warning')
-            return redirect(url_for('main.mainpage'))
+        random_media = TVShow.query.order_by(func.random()).first()
+    
+    if random_media:
+        if not random_media.poster_url or random_media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+            random_media.poster_url = fetch_poster(random_media.title, 'movie' if choice == 'movie' else 'series')
+            db.session.commit()
+        return redirect(url_for('main.media_detail', media_type=choice, media_id=random_media.id))
+    else:
+        flash(f'No {choice}s available.', 'warning')
+        return redirect(url_for('main.mainpage'))
 
 @main.route('/search')
 def search():
@@ -226,9 +230,9 @@ def search():
     tv_shows = TVShow.query.filter(TVShow.title.contains(query)).all()
     if  movies or tv_shows:
         if movies:
-            return movie_detail(movies[0].id)
+            return media_detail('movie', movies[0].id)
         else:
-            return tvshow_detail(tv_shows[0].id)
+            return media_detail('tvshow', tv_shows[0].id)
     else:
         flash('No results found.', 'warning')
         return redirect(url_for('main.mainpage'))
@@ -270,3 +274,19 @@ def debug_db():
     tvshow_count = TVShow.query.count()
 
     return f"Movies: {movie_count}, TV Shows: {tvshow_count}, Current User ID:{current_user.id}"
+
+@main.route('/delete_review/<int:review_id>', methods=['POST'])
+@login_required
+def delete_review(review_id):
+    review = Review.query.get_or_404(review_id)
+    if not current_user.is_admin:
+        flash('You are not authorized to delete this review.', 'danger')
+        return redirect(url_for('main.home'))
+    try:
+        db.session.delete(review)
+        db.session.commit()
+        flash('Review deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting review: {str(e)}', 'danger')
+    return redirect(request.referrer)
