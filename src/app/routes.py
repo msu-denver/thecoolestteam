@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, jsonify,
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt
 from utils import fetch_poster
+from ImdbScraper import videoScraper
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
 from app.forms import RegistrationForm, LoginForm, ProfileForm, ReviewForm
 from sqlalchemy.sql.expression import func
@@ -67,16 +68,18 @@ def mainpage():
 # MEDIA DETAIL ROUTE
 @main.route('/media/<string:media_type>/<string:media_id>', methods=['GET', 'POST'])
 def media_detail(media_type, media_id):
+
     if media_type == 'movie':
         media = Movie.query.get_or_404(media_id)
     else:
         media = TVShow.query.get_or_404(media_id)
     
     reviews = Review.query.filter_by(movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).all()
+    trailer = videoScraper(media.id)
     delete_form = DeleteForm()
     
     if media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
-        media.poster_url = fetch_poster(media.title, 'movie' if media_type == 'movie' else 'series')
+        media.poster_url = fetch_poster(media.id, 'movie' if media_type == 'movie' else 'series')
         db.session.commit()
     
     if request.method == 'POST':
@@ -111,7 +114,7 @@ def media_detail(media_type, media_id):
             db.session.rollback()
             return jsonify({'success': False, 'message': str(e)})
 
-    return render_template('media_detail.html', media=media, reviews=reviews, form=delete_form, media_type=media_type)
+    return render_template('media_detail.html', media=media, reviews=reviews, form=delete_form, media_type=media_type, trailer=trailer)
 
 @main.route('/profile/settings', methods=['GET', 'POST'])
 @login_required
@@ -216,7 +219,7 @@ def random_route():
     
     if random_media:
         if not random_media.poster_url or random_media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
-            random_media.poster_url = fetch_poster(random_media.title, 'movie' if choice == 'movie' else 'series')
+            random_media.poster_url = fetch_poster(random_media.id, 'movie' if choice == 'movie' else 'series')
             db.session.commit()
         return redirect(url_for('main.media_detail', media_type=choice, media_id=random_media.id))
     else:
