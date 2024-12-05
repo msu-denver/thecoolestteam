@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, FileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, Optional
 from app.models import User
 
@@ -59,6 +59,8 @@ class ProfileForm(FlaskForm):
     newPassword = StringField('New Password', validators=[Optional()])
     newEmail = StringField('New Email', validators=[Optional()])
     newUsername = StringField('New Username', validators=[Optional()])
+    newProfilepicture = FileField('New Profile Picture', validators=[Optional()])
     changePassword = SubmitField('Change Password')
     changeEmail = SubmitField('Change Email')
     changeUsername = SubmitField('Change Username')
+    changeProfilepicture = SubmitField('Change Profile Picture')

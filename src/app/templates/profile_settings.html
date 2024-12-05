@@ -26,7 +26,7 @@
         <h3>Change Email</h3>
         <div class="form-group">
             <label for="email">New Email:</label>
-            {{ form.changeEmail(class="form-control", value=current_user.email) }}
+            {{ form.changeEmail(class="form-control", value='') }}
         </div>
         <button type="Change Email" class="btn btn-primary">{{ form.changeEmail.label.text }}</button>
     </form>
@@ -34,7 +34,7 @@
         <h3>Change Username</h3>
         <div class="form-group">
             <label for="username">New Username:</label>
-            {{ form.changeUsername(class="form-control", value=current_user.username) }}
+            {{ form.changeUsername(class="form-control", value='') }}
         </div>
         <button type="Change Username" class="btn btn-primary">{{ form.changeUsername.label.text }}</button>
         </form>

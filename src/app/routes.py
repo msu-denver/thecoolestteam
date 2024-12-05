@@ -122,14 +122,33 @@ def profile_settings():
         # Update the user's password
         if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
             flash('Passwords do not match', 'danger')
-            return redirect(url_for('main.profile_settings'))  # Redirect to profile page
+            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
         
-        current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
-        db.session.commit()  # Save changes to the database
-        flash('Succesfully Changed Password', 'success')
-        return redirect(url_for('main.profile_settings'))  # Redirect to profile page
-
-    return render_template('profile_settings.html', form=form)
+        if form.newPassword.data:
+            current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+            db.session.commit()  # Save changes to the database
+            flash('Succesfully Changed Password', 'success')
+            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+        
+        if form.newEmail.data != current_user.email:
+            if User.query.filter_by(email=form.newEmail.data):
+                flash('Email is already taken','danger')
+                return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                
+            current_user.email = form.newEmail
+            db.session.commit()
+            flash('Succesfully Changed Email', 'success')
+            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+        
+        if form.newUsername.data != current_user.username:
+            if User.query.filter_by(username=form.newUsername.data):
+                flash('Username is already taken','danger')
+                return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                
+            current_user.username = form.newUsername
+            db.session.commit()
+            flash('Succesfully Changed Username', 'success')
+            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
 
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
