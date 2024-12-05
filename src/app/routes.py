@@ -128,10 +128,11 @@ def profile_settings():
 
     return render_template('profile_settings.html', form=form)
 
-@main.route('/profile', methods=['GET', 'POST'])
+@main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
-def profile():
-    return render_template('profile.html')
+def profile(id):
+    user = User.query.get_or_404(id)
+    return render_template('profile.html', user=user)
 
 @main.route('/admin')
 @login_required
