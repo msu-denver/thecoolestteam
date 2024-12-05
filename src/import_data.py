@@ -34,6 +34,7 @@ def import_data(csv_filepath):
                 total_rows += 1
                 entry_id = row.get('id', '').strip()
                 title = row.get('title', '').strip()
+                imdb_id = row.get('id', '').strip()
                 type_ = row.get('type', '').strip().lower()  # 'movie', 'tvshow', 'tvseries', 'tvminiseries'
                 genres = row.get('genres', '').strip()
                 averageRating = float(row.get('averageRating', 0)) if row.get('averageRating') else None
@@ -64,6 +65,7 @@ def import_data(csv_filepath):
                     movie = Movie(
                         id=entry_id,
                         title=title,
+                        imdb_id=imdb_id,
                         genre=genres,
                         averageRating=averageRating,
                         numVotes=numVotes,
@@ -86,6 +88,7 @@ def import_data(csv_filepath):
                     tvshow = TVShow(
                         id=entry_id,
                         title=title,
+                        imdb_id=imdb_id,
                         genre=genres,
                         seasons=int(row.get('seasons', 0)) if row.get('seasons') else 1,
                         episodes=int(row.get('episodes', 0)) if row.get('episodes') else 1,
