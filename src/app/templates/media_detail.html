@@ -98,7 +98,7 @@
         {% for review in reviews %}
         <div class="container" tabindex="-1">
             <div class="bg-body-tertiary p-3 rounded">
-                <h5>User: {{ review.author.username }}
+                <h5><a href="{{url_for('main.profile', id=review.user_id)}}">{{review.author.username}} </a>
                     {% if current_user.is_admin %}
                         <button class="btn btn-danger btn-sm float-end" onclick="confirmDelete('{{ url_for('main.delete_review', review_id=review.id) }}')">X</button>
                     {% endif %}

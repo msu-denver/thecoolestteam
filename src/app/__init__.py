@@ -12,7 +12,7 @@ login_manager = LoginManager()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
 migrate = Migrate()  # Initialize Migrate
-cache = Cache(config={'CACHE_TYPE': 'simple'})  # Initialize Cache
+cache = Cache()  # Initialize Cache without config
 
 def create_app():
     app = Flask(__name__)

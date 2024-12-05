@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db, bcrypt
+from app import db, bcrypt, cache
 from utils import fetch_poster
 from ImdbScraper import videoScraper
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
@@ -16,7 +16,6 @@ class DeleteForm(FlaskForm):
 
 # Initialize Blueprint
 main = Blueprint('main', __name__)
-cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 @main.route('/')
 def home():
@@ -63,7 +62,6 @@ def logout():
 @login_required
 def mainpage():
     return render_template('mainpage.html')  # Ensure this template exists
-
 
 # MEDIA DETAIL ROUTE
 @main.route('/media/<string:media_type>/<string:media_id>', methods=['GET', 'POST'])
@@ -133,10 +131,11 @@ def profile_settings():
 
     return render_template('profile_settings.html', form=form)
 
-@main.route('/profile', methods=['GET', 'POST'])
+@main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
-def profile():
-    return render_template('profile.html')
+def profile(id):
+    user = User.query.get_or_404(id)
+    return render_template('profile.html', user=user)
 
 @main.route('/admin')
 @login_required
@@ -226,19 +225,6 @@ def random_route():
         flash(f'No {choice}s available.', 'warning')
         return redirect(url_for('main.mainpage'))
 
-@main.route('/search')
-def search():
-    query = request.args.get('query')
-    movies = Movie.query.filter(Movie.title.contains(query)).all()
-    tv_shows = TVShow.query.filter(TVShow.title.contains(query)).all()
-    if  movies or tv_shows:
-        if movies:
-            return media_detail('movie', movies[0].id)
-        else:
-            return media_detail('tvshow', tv_shows[0].id)
-    else:
-        flash('No results found.', 'warning')
-        return redirect(url_for('main.mainpage'))
 @main.route('/autocomplete', methods=['GET'])
 def autocomplete():
     query = request.args.get('query', '', type=str)
@@ -256,6 +242,25 @@ def autocomplete():
 
     return jsonify(results)
 
+@main.route('/search_results', methods=['GET'])
+def search_results():
+    query = request.args.get('query', '')
+    page = request.args.get('page', 1, type=int)
+    cache_key = f'search_results_{query}_{page}'
+
+    results = cache.get(cache_key)
+    if not results:
+        movies = Movie.query.filter(Movie.title.ilike(f"%{query}%")).order_by(Movie.title.desc()).paginate(page=page, per_page=10, error_out=False)
+        tv_shows = TVShow.query.filter(TVShow.title.ilike(f"%{query}%")).order_by(TVShow.title.desc()).paginate(page=page, per_page=10, error_out=False)
+        results = {
+            'movies': movies.items,
+            'tv_shows': tv_shows.items,
+            'has_next': movies.has_next or tv_shows.has_next,
+            'has_prev': movies.has_prev or tv_shows.has_prev
+        }
+        cache.set(cache_key, results, timeout=300)  # Cache for 5 minutes
+
+    return render_template('search_results.html', query=query, results=results, page=page)
 
 ## ERROR HANDLING ##
 
@@ -267,7 +272,6 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
-
 
 ## DEBUGGING ##
 

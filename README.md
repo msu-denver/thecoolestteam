@@ -23,28 +23,49 @@
 - [License](#license)
 
 ## Dump File
-- Dump file is the snapshot of the populated database, use this in lieu of importing the data from the csv file yourself
 
-- It is located in the src/static folder
+- The dump file is a snapshot of the populated database. Use this instead of importing the data from the CSV file manually.
+- It is located in the `src/static` folder.
 
-- Ensure Docker Containers are running via;
+- Ensure Docker containers are running via:
 
-```bash
-docker-compose up -d
-```
+    ```bash
+    docker-compose up -d
+    ```
 
-- Copy the Dump File to the db container
+- In Bash/WSL:
 
-```bash
-docker cp cool_movie_list.dump $(docker-compose ps -q db):/tmp/cool_movie_list.dump
-```
+    - Copy the dump file to the `db` container:
 
-- Restore the database using pg_restore
+    ```bash
+    docker cp src/static/cool_movie_list.dump $(docker-compose ps -q db):/tmp/cool_movie_list.dump
+    ```
 
-```bash
-docker-compose exec db pg_restore -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
-```
+    - Restore the database using `pg_restore`:
 
+    ```bash
+    docker-compose exec db pg_restore -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
+    ```
+
+- In PowerShell:
+
+    - Retrieve the database container ID:
+
+    ```powershell
+    $containerId = docker-compose ps -q db
+    ```
+
+    - Copy the dump file to the `db` container:
+
+    ```powershell
+    docker cp src/static/cool_movie_list.dump "${containerId}:/tmp/cool_movie_list.dump"
+    ```
+
+    - Restore the database using `pg_restore`:
+
+    ```powershell
+    docker-compose exec db pg_restore --clean -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
+    ```
 
 ## Introduction
 
