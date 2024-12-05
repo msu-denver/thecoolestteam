@@ -1,7 +1,7 @@
 import os
 import requests
 
-def fetch_poster(title, media_type='movie'):
+def fetch_poster(id, media_type='movie'):
     """
     Fetches the poster URL from OMDb API based on the title and media type.
 
@@ -17,7 +17,7 @@ def fetch_poster(title, media_type='movie'):
     
     try: 
         params = {
-            't': title,
+            'i': id,
             'type': media_type,
             'apikey': api_key
         }
