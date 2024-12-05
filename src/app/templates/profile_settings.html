@@ -21,18 +21,24 @@
             {{ form.newPassword(class="form-control", value='') }}
         </div>
         <button type="Change Pasword" class="btn btn-primary">{{ form.changePassword.label.text }}</button>
+    </form>
+    <form method="POST" action="{{ url_for('main.profile_settings') }}">
         <h3>Change Email</h3>
         <div class="form-group">
             <label for="email">New Email:</label>
             {{ form.changeEmail(class="form-control", value=current_user.email) }}
         </div>
         <button type="Change Email" class="btn btn-primary">{{ form.changeEmail.label.text }}</button>
+    </form>
+    <form method="POST" action="{{ url_for('main.profile_settings') }}">
         <h3>Change Username</h3>
         <div class="form-group">
             <label for="username">New Username:</label>
             {{ form.changeUsername(class="form-control", value=current_user.username) }}
         </div>
         <button type="Change Username" class="btn btn-primary">{{ form.changeUsername.label.text }}</button>
+        </form>
+        <form method="POST" action="{{ url_for('main.profile_settings') }}">
         <h3>Change Profile Picture</h3>
     </form>
 {% endblock %}
