@@ -26,7 +26,7 @@ This final project involves working in groups of 3 to 5 members to develop a web
 * Describe at least six user stories in detail, including their acceptance criteria and point estimates.
 * User stories must be referred to as US#1, US#2, etc.
 * At least one user story, not related to user creation or authentication, must be detailed using a sequence diagram.
-
+docker
 ## Class Diagram
 
 * A class diagram should be built for the model classes used in the project, including their associations.

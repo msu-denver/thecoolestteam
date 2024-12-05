@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [STEPS TO RESTORE DATABASE USING DUMP FILE](#dump-file)
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -20,6 +21,29 @@
 
 - [Contributing](#contributing)
 - [License](#license)
+
+## Dump File
+- Dump file is the snapshot of the populated database, use this in lieu of importing the data from the csv file yourself
+
+- It is located in the src/static folder
+
+- Ensure Docker Containers are running via;
+
+```bash
+docker-compose up -d
+```
+
+- Copy the Dump File to the db container
+
+```bash
+docker cp cool_movie_list.dump $(docker-compose ps -q db):/tmp/cool_movie_list.dump
+```
+
+- Restore the database using pg_restore
+
+```bash
+docker-compose exec db pg_restore -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
+```
 
 
 ## Introduction

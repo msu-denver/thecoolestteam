@@ -13,8 +13,8 @@ def load_user(user_id):
 # Association Table for Favorites (Many-to-Many Relationship)
 favorites = db.Table('favorites',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), nullable=True),
-    db.Column('tvshow_id', db.Integer, db.ForeignKey('tv_show.id'), nullable=True)
+    db.Column('movie_id', db.String, db.ForeignKey('movie.id'), nullable=True),
+    db.Column('tvshow_id', db.String, db.ForeignKey('tv_show.id'), nullable=True)
 )
 
 class User(db.Model, UserMixin):
@@ -36,9 +36,9 @@ class User(db.Model, UserMixin):
 
 class Movie(db.Model):
     __tablename__ = 'movie'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)  # Changed to String
     title = db.Column(db.String(255), nullable=False)
-    genre = db.Column(db.String(255), nullable=False)  # Changed to 'genre'
+    genre = db.Column(db.String(255), nullable=False)
     averageRating = db.Column(db.Float, nullable=True)
     numVotes = db.Column(db.Integer, nullable=True)
     releaseYear = db.Column(db.Integer, nullable=True)
@@ -54,15 +54,15 @@ class Movie(db.Model):
 
 class TVShow(db.Model):
     __tablename__ = 'tv_show'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)  # Changed to String
     title = db.Column(db.String(255), nullable=False)
     seasons = db.Column(db.Integer, nullable=False, default=1)
     episodes = db.Column(db.Integer, nullable=False, default=1)
     release_date = db.Column(db.Date, nullable=False, default=datetime.now)
-    genre = db.Column(db.String(100), nullable=False)  # Ensure 'genre' is singular
+    genre = db.Column(db.String(100), nullable=False)
     rating = db.Column(db.Integer, nullable=False, default=5)
     description = db.Column(db.Text, nullable=False, default='No description available.')
-    poster_url = db.Column(db.String(500), default='https://via.placeholder.com/300x450.png?text=No+Image')  # Added poster_url
+    poster_url = db.Column(db.String(500), default='https://via.placeholder.com/300x450.png?text=No+Image')
 
     # Relationships
     reviews = relationship('Review', backref='tv_show', lazy='dynamic')
@@ -76,8 +76,8 @@ class Favorite(db.Model):
     __tablename__ = 'favorite'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=True)
-    tvshow_id = db.Column(db.Integer, db.ForeignKey('tv_show.id'), nullable=True)
+    movie_id = db.Column(db.String, db.ForeignKey('movie.id'), nullable=True)  # Changed to String
+    tvshow_id = db.Column(db.String, db.ForeignKey('tv_show.id'), nullable=True)  # Changed to String
 
     # Ensure that either movie_id or tvshow_id is provided, not both
     __table_args__ = (
@@ -98,8 +98,8 @@ class Recommendation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)  # 'movie' or 'tv_show'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=True)
-    tvshow_id = db.Column(db.Integer, db.ForeignKey('tv_show.id'), nullable=True)
+    movie_id = db.Column(db.String, db.ForeignKey('movie.id'), nullable=True)  # Changed to String
+    tvshow_id = db.Column(db.String, db.ForeignKey('tv_show.id'), nullable=True)  # Changed to String
 
     # Ensure that type matches the presence of movie_id or tvshow_id
     __table_args__ = (
@@ -121,11 +121,11 @@ class Recommendation(db.Model):
 class Review(db.Model):
     __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
-    rating = db.Column(db.Float, nullable=False)  # Changed to Float to accommodate averageRating
+    rating = db.Column(db.Float, nullable=False)
     comment = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=True)
-    tvshow_id = db.Column(db.Integer, db.ForeignKey('tv_show.id'), nullable=True)
+    movie_id = db.Column(db.String, db.ForeignKey('movie.id'), nullable=True)  # Changed to String
+    tvshow_id = db.Column(db.String, db.ForeignKey('tv_show.id'), nullable=True)  # Changed to String
     created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     # Ensure that either movie_id or tvshow_id is provided, not both

@@ -58,117 +58,90 @@ def mainpage():
     return render_template('mainpage.html')  # Ensure this template exists
 
 
-## MOVIE ROUTE ##
-
-@main.route('/movie/<int:movie_id>', methods=['GET', 'POST'])
+# MOVIE DETAIL ROUTE
+@main.route('/movie/<string:movie_id>', methods=['GET', 'POST'])
 def movie_detail(movie_id):
     movie = Movie.query.get_or_404(movie_id)
-    reviews =  Review.query.filter_by(movie_id = movie.id).all()
-
+    reviews = Review.query.filter_by(movie_id=movie.id).all()
     if movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
-
         movie.poster_url = fetch_poster(movie.title, 'movie')
         db.session.commit()
-
     return render_template('movie_detail.html', movie=movie, reviews=reviews)
 
 
-## TV SHOW ROUTE ##
-@main.route('/tvshow/<int:tvshow_id>', methods=['GET', 'POST'])
+# TV SHOW DETAIL ROUTE
+@main.route('/tvshow/<string:tvshow_id>', methods=['GET', 'POST'])
 def tvshow_detail(tvshow_id):
     tvshow = TVShow.query.get_or_404(tvshow_id)
-    reviews =  Review.query.filter_by(tvshow_id = tvshow.id).all()
-    
+    reviews = Review.query.filter_by(tvshow_id=tvshow.id).all()
     if tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None:
         tvshow.poster_url = fetch_poster(tvshow.title, 'series')
         db.session.commit()
-
     return render_template('tvshow_detail.html', tvshow=tvshow, reviews=reviews)
 
-
-## MOVIE REVIEW ROUTE ##
-@main.route('/movie_review/<int:movie_id>', methods=['GET', 'POST'])
+# MOVIE REVIEW ROUTE
+@main.route('/movie_review/<string:movie_id>', methods=['GET', 'POST'])
 @login_required
 def movie_review(movie_id):
     form = ReviewForm()
-    lastReview = db.session.query(Review).order_by(Review.id.desc()).first() # obtains most recent review in database
-    movie =  Movie.query.filter_by(id=movie_id).first()
+    lastReview = db.session.query(Review).order_by(Review.id.desc()).first()
+    movie = Movie.query.filter_by(id=movie_id).first()
     newID = 0
-
     for user_review in current_user.reviews:
         if user_review.movie_id == movie_id:
             flash('You already have a review for this movie', 'danger')
             return redirect(url_for('main.movie_detail', movie_id=movie_id))
-
-    if lastReview != None:
+    if lastReview is not None:
         newID = lastReview.id + 1 
-
     if form.validate_on_submit(): 
-
         try:
-        
-            review = Review (id=newID,
-                            user_id=current_user.id, 
-                            rating=form.rating.data, 
-                            comment=form.comment.data, 
-                            movie_id=movie_id, 
-                            author=current_user)
-            
+            review = Review(
+                id=newID,
+                user_id=current_user.id, 
+                rating=form.rating.data, 
+                comment=form.comment.data, 
+                movie_id=movie_id, 
+                author=current_user
+            )
             db.session.add(review)
             db.session.commit()
-
         except Exception as e:
-                
-                db.session.rollback()  # Rollback in case of an error
-                flash(e, 'danger')
-                return render_template('movie_review.html', form=form, movie=movie)
-
-        return redirect(url_for('main.movie_detail', movie_id=movie_id))
-    
+            db.session.rollback()
+            flash(e, 'danger')
+            return render_template('movie_review.html', form=form, movie=movie)
     return render_template('movie_review.html', form=form, movie=movie)
 
-
-## TV REVIEW ROUTE ##
-@main.route('/tvshow_review/<int:tvshow_id>', methods=['GET', 'POST'])
+# TV SHOW REVIEW ROUTE
+@main.route('/tvshow_review/<string:tvshow_id>', methods=['GET', 'POST'])
 @login_required
 def tvshow_review(tvshow_id):
     form = ReviewForm()
-    lastReview = db.session.query(Review).order_by(Review.id.desc()).first() # obtains most recent review in database
-    tvshow =  TVShow.query.filter_by(id=tvshow_id).first()
+    lastReview = db.session.query(Review).order_by(Review.id.desc()).first()
+    tvshow = TVShow.query.filter_by(id=tvshow_id).first()
     newID = 0
-
     for user_review in current_user.reviews:
         if user_review.tvshow_id == tvshow_id:
-            flash('You already have a review for this tv show', 'danger')
+            flash('You already have a review for this TV show', 'danger')
             return redirect(url_for('main.tvshow_detail', tvshow_id=tvshow_id))
-
-    if lastReview != None:
+    if lastReview is not None:
         newID = lastReview.id + 1 
-
     if form.validate_on_submit(): 
-        
         try:
-
-            review = Review (id=newID,
-                            user_id=current_user.id, 
-                            rating=form.rating.data, 
-                            comment=form.comment.data, 
-                            tvshow_id=tvshow_id,
-                            author=current_user)
-            
+            review = Review(
+                id=newID,
+                user_id=current_user.id, 
+                rating=form.rating.data, 
+                comment=form.comment.data, 
+                tvshow_id=tvshow_id,
+                author=current_user
+            )
             db.session.add(review)
             db.session.commit()
-        
         except Exception as e:
-                
-                db.session.rollback()  # Rollback in case of an error
-                flash(e, 'danger')
-                return render_template('tvshow_review.html', form=form, tvshow=tvshow)
-
-        return redirect(url_for('main.tvshow_detail', tvshow_id=tvshow_id))
-    
+            db.session.rollback()
+            flash(e, 'danger')
+            return render_template('tvshow_review.html', form=form, tvshow=tvshow)
     return render_template('tvshow_review.html', form=form, tvshow=tvshow)
-
   
 
 @main.route('/profile/settings', methods=['GET', 'POST'])
@@ -218,17 +191,15 @@ def favorites():
     user_favorites = current_user.favorites.all()
     return render_template('favorites.html', favorites=user_favorites)
 
+# RANDOM ROUTE
 @main.route('/random')
 @login_required
-def random_route():  # Renamed function
-    # Decide randomly to choose a movie or a TV show
+def random_route():
     choice = random.choice(['movie', 'tvshow'])
     
     if choice == 'movie':
-        # Fetch a random movie
         random_movie = Movie.query.order_by(func.random()).first()
         if random_movie:
-            # Ensure poster_url is present
             if not random_movie.poster_url or random_movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
                 random_movie.poster_url = fetch_poster(random_movie.title, 'movie')
                 db.session.commit()
@@ -238,10 +209,8 @@ def random_route():  # Renamed function
             return redirect(url_for('main.mainpage'))
     
     else:
-        # Fetch a random TV show
         random_tvshow = TVShow.query.order_by(func.random()).first()
         if random_tvshow:
-            # Ensure poster_url is present
             if not random_tvshow.poster_url or random_tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
                 random_tvshow.poster_url = fetch_poster(random_tvshow.title, 'series')
                 db.session.commit()
@@ -249,7 +218,6 @@ def random_route():  # Renamed function
         else:
             flash('No TV shows available.', 'warning')
             return redirect(url_for('main.mainpage'))
-
 
 @main.route('/search')
 def search():
