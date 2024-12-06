@@ -19,7 +19,23 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def home():
-    return render_template('home.html')
+    # Take 10 movies and posters for the movie using featch poster
+    movies = Movie.query.order_by(func.random()).limit(10).all()
+    tvshows = TVShow.query.order_by(func.random()).limit(10).all()
+    for movie in movies:
+        if not movie.poster_url or movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+            movie.poster_url = fetch_poster(movie.id, 'movie')
+            db.session.commit()
+
+    for tvshow in tvshows:
+        if not tvshow.poster_url or tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+            tvshow.poster_url = fetch_poster(tvshow.id, 'series')
+            db.session.commit()
+
+
+    
+    return render_template('home.html', movies=movies, tvshows=tvshows)
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
