@@ -19,7 +19,9 @@
                 <td>{{ 'Yes' if user.admin else 'No' }}</td>
                 <td>
                     <form action="{{ url_for('toggle_admin', id=user.id) }}" method="POST">
-                        <button type="submit" class="button {% if user.id == current_user.id %}disabled-button{% endif %}" {% if user.id == current_user.id %}disabled title="Admin can't revoke their own status"{% endif %}>
+                        <button type="submit"
+                            class="button {% if user.id == current_user.id %}disabled-button{% endif %}" {% if
+                            user.id==current_user.id %}disabled title="Admin can't revoke their own status" {% endif %}>
                             {{ 'Revoke Admin' if user.is_admin else 'Make Admin' }}
                         </button>
                     </form>

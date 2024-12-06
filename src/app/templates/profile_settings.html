@@ -3,42 +3,48 @@
 {% block title %}Profile Settings - {{ current_user.username }}{% endblock %}
 
 {% block content %}
-    <h2>Profile Settings</h2>
-    
-    <form method="POST" action="{{ url_for('main.profile_settings') }}">
-        {{ form.hidden_tag() }}  <!-- CSRF protection -->
-        
-        <h3>Change Password</h3>
-        <div class="form-group">
-            <label for="password">Old Pasword:</label>
-            {{ form.oldPassword(class="form-control", value='') }}
-            {% for error in form.oldPassword.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            <label for="password">New Pasword:</label>
-            {{ form.newPassword(class="form-control", value='') }}
-        </div>
-        <button type="Change Pasword" class="btn btn-primary">{{ form.changePassword.label.text }}</button>
-    </form>
-    <form method="POST" action="{{ url_for('main.profile_settings') }}">
-        <h3>Change Email</h3>
-        <div class="form-group">
-            <label for="email">New Email:</label>
-            {{ form.changeEmail(class="form-control", value='') }}
-        </div>
-        <button type="Change Email" class="btn btn-primary">{{ form.changeEmail.label.text }}</button>
-    </form>
-    <form method="POST" action="{{ url_for('main.profile_settings') }}">
-        <h3>Change Username</h3>
-        <div class="form-group">
-            <label for="username">New Username:</label>
-            {{ form.changeUsername(class="form-control", value='') }}
-        </div>
-        <button type="Change Username" class="btn btn-primary">{{ form.changeUsername.label.text }}</button>
-        </form>
-        <form method="POST" action="{{ url_for('main.profile_settings') }}">
-        <h3>Change Profile Picture</h3>
-    </form>
+<h2>Profile Settings</h2>
+
+<!-- Form to Change Password -->
+<form method="POST" action="{{ url_for('main.profile_settings') }}" novalidate>
+    {{ form.hidden_tag() }} <!-- CSRF protection -->
+
+    <h3>Change Password</h3>
+    <div class="form-group">
+        <label for="password">Old Password:</label>
+        {{form.oldPassword(class="form-control")}}
+        {% for error in form.oldPassword.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        <label for="password">New Password:</label>
+        {{form.newPassword(class="form-control")}}
+        {% for error in form.newPassword.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+<!-- Form to Change Email -->
+    <h3>Change Email</h3>
+    <div class="form-group">
+        <label for="email">New Email:</label>
+        {{form.newEmail(class="form-control", value=current_user.email)}}
+        {% for error in form.newEmail.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+<!-- Form to Change Username -->
+    <h3>Change Username</h3>
+    <div class="form-group">
+        <label for="username">New Username:</label>
+        {{form.newUsername(class="form-control", value=current_user.username)}}
+        {% for error in form.newUsername.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+<!-- Form to Change Profile Picture (Currently Empty) -->
+    <h3>Change Profile Picture</h3>
+    <!-- Add image upload field here if needed -->
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
 {% endblock %}
