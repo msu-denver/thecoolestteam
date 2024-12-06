@@ -134,36 +134,39 @@ def media_detail(media_type, media_id):
 def profile_settings():
     form = ProfileForm()
     if form.validate_on_submit():
-        # Update the user's password
-        if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
-            flash('Passwords do not match', 'danger')
-            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-        
-        if form.newPassword.data:
-            current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
-            db.session.commit()  # Save changes to the database
-            flash('Succesfully Changed Password', 'success')
-            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-        
-        if form.newEmail.data != current_user.email:
-            if User.query.filter_by(email=form.newEmail.data):
-                flash('Email is already taken','danger')
-                return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-                
-            current_user.email = form.newEmail
+        try:
+            if form.oldPassword.data and form.newPassword.data:
+                # Update the user's password
+                if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
+                    flash('Passwords do not match', 'danger')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                elif form.newPassword.data == None:
+                    current_user.password = current_user.password
+                else:
+                    current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+            # Update the user's email
+            if form.newEmail.data != current_user.email:
+                if User.query.filter_by(email=form.newEmail.data).first():
+                    flash('Email is already taken','danger')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                else:   
+                    current_user.email = form.newEmail.data
+            # Update the user's username
+            if form.newUsername.data != current_user.username:
+                if User.query.filter_by(username=form.newUsername.data).first():
+                    flash('Username is already taken','danger')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                else:
+                    current_user.username = form.newUsername.data
+            cache.clear()
             db.session.commit()
-            flash('Succesfully Changed Email', 'success')
-            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-        
-        if form.newUsername.data != current_user.username:
-            if User.query.filter_by(username=form.newUsername.data):
-                flash('Username is already taken','danger')
-                return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-                
-            current_user.username = form.newUsername
-            db.session.commit()
-            flash('Succesfully Changed Username', 'success')
-            return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+            flash('Profile updated successfully', 'success')
+            return redirect(url_for('main.profile'))
+        except Exception as e:
+            db.session.rollback()
+            flash(e, 'danger')
+            print(e)
+    return render_template('profile_settings.html', form=form)
 
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
