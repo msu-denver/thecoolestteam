@@ -43,6 +43,9 @@ class Movie(db.Model):
     numVotes = db.Column(db.Integer, nullable=True)
     releaseYear = db.Column(db.Integer, nullable=True)
     poster_url = db.Column(db.String(500), default='https://via.placeholder.com/300x450.png?text=No+Image')
+    
+    trailer_url = db.Column(db.String(1000))
+    trailer_fetch_time = db.Column(db.Integer, default=None)
 
     # Relationships
     reviews = relationship('Review', backref='movie', lazy='dynamic')
@@ -63,6 +66,9 @@ class TVShow(db.Model):
     rating = db.Column(db.Integer, nullable=False, default=5)
     description = db.Column(db.Text, nullable=False, default='No description available.')
     poster_url = db.Column(db.String(500), default='https://via.placeholder.com/300x450.png?text=No+Image')
+    
+    trailer_url = db.Column(db.String(1000), default=None)
+    trailer_fetch_time = db.Column(db.Integer, default=None)
 
     # Relationships
     reviews = relationship('Review', backref='tv_show', lazy='dynamic')

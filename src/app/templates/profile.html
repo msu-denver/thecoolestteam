@@ -3,17 +3,17 @@
 {% block title %}Profile - {{ user.username }}{% endblock %}
 
 {% block content %}
-    <h2>User Profile</h2>
-    <ul class="list-group">
-        <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
-        <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-        <!-- Add more user details as needed -->
-    </ul>
-    
-    {% if user.id == current_user.id%}
-    <a href="{{ url_for('main.profile_settings') }}" class="btn btn-secondary mt-3">Go to Profile Settings</a>
-    {% endif %}
-    {% if is_admin %}
-    <a href="{{ url_for('main.admin') }}" class="btn btn-secondary mt-3">Go to Admin Page</a>
-    {% endif %}
+<h2>User Profile</h2>
+<ul class="list-group">
+    <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+    <!-- Add more user details as needed -->
+</ul>
+
+{% if user.id == current_user.id%}
+<a href="{{ url_for('main.profile_settings') }}" class="btn btn-secondary mt-3">Go to Profile Settings</a>
+{% endif %}
+{% if is_admin %}
+<a href="{{ url_for('main.admin') }}" class="btn btn-secondary mt-3">Go to Admin Page</a>
+{% endif %}
 {% endblock %}
