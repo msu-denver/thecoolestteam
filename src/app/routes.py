@@ -119,16 +119,29 @@ def media_detail(media_type, media_id):
 def profile_settings():
     form = ProfileForm()
     if form.validate_on_submit():
+        tempPassword = current_user.password
         try:
-            if form.oldPassword.data and form.newPassword.data:
-                # Update the user's password
-                if not bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
-                    flash('Passwords do not match', 'danger')
-                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-                elif form.newPassword.data == None:
-                    current_user.password = current_user.password
+            # Update the user's password
+            if form.newPassword.data != None:
+                if bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
+                    # Check if new password is different from the old one
+                    if form.newPassword.data != form.oldPassword.data:
+                        current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+                        db.session.commit()
+                        flash('Password updated successfully', 'success')
+                        return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                    else:
+                        db.session.commit()
+                        flash('New password cannot be the same as the old password.', 'danger')
+                        return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
                 else:
-                    current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+                    db.session.commit()
+                    flash('Old password is incorrect', 'danger')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+            if form.newPassword.data == None:
+                current_user.password = tempPassword
+                db.session.commit()
+                return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
             # Update the user's email
             if form.newEmail.data != current_user.email:
                 if User.query.filter_by(email=form.newEmail.data).first():
@@ -136,6 +149,9 @@ def profile_settings():
                     return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
                 else:   
                     current_user.email = form.newEmail.data
+                    db.session.commit()
+                    flash('Email updated successfully', 'success')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
             # Update the user's username
             if form.newUsername.data != current_user.username:
                 if User.query.filter_by(username=form.newUsername.data).first():
@@ -143,10 +159,10 @@ def profile_settings():
                     return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
                 else:
                     current_user.username = form.newUsername.data
-            cache.clear()
-            db.session.commit()
-            flash('Profile updated successfully', 'success')
-            return redirect(url_for('main.profile'))
+                    db.session.commit()
+                    flash('Username updated successfully', 'success')
+                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+            return redirect(url_for('main.profile_settings'))
         except Exception as e:
             db.session.rollback()
             flash(e, 'danger')

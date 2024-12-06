@@ -12,7 +12,7 @@ class RegistrationForm(FlaskForm):
         DataRequired(),
         Email()
     ])
-    password = PasswordField('Password', validators=[
+    password = PasswordField('Password', validators=[Length(min=8),
         DataRequired()
     ])
     confirm_password = PasswordField('Confirm Password', validators=[
@@ -56,7 +56,7 @@ class ReviewForm(FlaskForm):
     
 class ProfileForm(FlaskForm):
     oldPassword = PasswordField('Old Password', validators=[DataRequired()])
-    newPassword = PasswordField('New Password',validators=[Optional()])
+    newPassword = PasswordField('New Password',validators=[Length(min=8),Optional()])
     newEmail = StringField('New Email', validators=[DataRequired(), Email()])
     newUsername = StringField('New Username', validators=[DataRequired()])
     newProfilepicture = FileField('New Profile Picture', validators=[Optional()])
