@@ -1,34 +1,23 @@
 {% extends 'base.html' %}
-{% block main %}
-<div id="centered-div">
-    <h1>Admin Control Panel</h1>
-    <table class="styled-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Admin</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+{% block title %}Admin Settings - {{ current_user.username }}{% endblock %}
+{% block content %}
+<h2>Admin Settings</h2>
+<form method="POST" action="{{ url_for('main.profile_settings') }}">
+    {{ form.hidden_tag() }} <!-- CSRF protection -->
+    <table>
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ 'Yes' if user.admin else 'No' }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ 'Admin' if user.is_admin else 'Not Admin' }}</td>
                 <td>
-                    <form action="{{ url_for('toggle_admin', id=user.id) }}" method="POST">
-                        <button type="submit"
-                            class="button {% if user.id == current_user.id %}disabled-button{% endif %}" {% if
-                            user.id==current_user.id %}disabled title="Admin can't revoke their own status" {% endif %}>
-                            {{ 'Revoke Admin' if user.is_admin else 'Make Admin' }}
-                        </button>
-                    </form>
+                    {% if user.id != current_user.id %}
+                    <button type="submit" name="user_id" value="{{ user.id }}">Toggle Admin</button>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>
+</form>>
 {% endblock %}
