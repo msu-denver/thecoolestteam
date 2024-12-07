@@ -299,9 +299,10 @@ def profile_settings():
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
 def profile(id):
+    #Load user assets
     user = User.query.get_or_404(id)
     is_admin = current_user.is_admin
-
+    #Load favorite assets
     user_favorites = user.favorites.all()
     favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
     favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
