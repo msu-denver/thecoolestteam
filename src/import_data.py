@@ -73,7 +73,7 @@ def import_data(csv_filepath):
                     db.session.add(movie)
                     imported_movies += 1
 
-                elif type_ in ['tvshow', 'tvseries', 'tvminiseries']:
+                elif type_ in ['tvseries']:
                     # Check if the TV show already exists to avoid duplicates
                     existing_tvshow = TVShow.query.filter_by(id=entry_id).first()
                     if existing_tvshow:

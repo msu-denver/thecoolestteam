@@ -32,18 +32,20 @@
 
         <p style="padding-top: 2vh;"><strong>Type:</strong> {{ 'TV Show' if media_type == 'tvshow' else 'Movie' }}</p>
 
-        {% if media.release_date %}
+        {% if media_type == 'movie' and media.releaseYear %}
+        <p><strong>Release Year:</strong> {{ media.releaseYear }}</p>
+        {% elif media_type == 'tvshow' and media.release_date %}
         <p><strong>Release Year:</strong> {{ media.release_date.year }}</p>
         {% else %}
-        <p><strong>Release Year:</strong> N/A </p>
+        <p><strong>Release Year:</strong> N/A</p>
         {% endif %}
 
         {% if media_type == 'movie' %}
         {% if media.genre %}
         <p><strong>Genre:</strong> {{ media.genre }}</p>
         {% endif %}
-        {% if media.rating %}
-        <p><strong>Average Rating:</strong> {{ media.rating }}/10</p>
+        {% if media.averageRating %}
+        <p><strong>Average Rating:</strong> {{ media.averageRating }}/10</p>
         {% else %}
         <p><strong>Average Rating:</strong> N/A </p>
         {% endif %}
