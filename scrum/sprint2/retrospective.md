@@ -1,7 +1,8 @@
 # Sprint Retrospective
 
-Date/Time: 
+Date/Time: 12/03/24 - 16:00
 
-Participants: 
+Participants: Gage/Eldar/Jackson/Jason
 
-Notes...
+- Backlog largely remains the same, outside of US1-3 being done. 
+- No testing implemented as of yet. 

@@ -1,7 +1,7 @@
 # Sprint Retrospective
 
-Date/Time: 
+Date/Time: 11/21/24 - 15:30
 
-Participants: 
+Participants: Gage/Eldar/Jason/Jackson
 
-Notes...
+First sprint was short, mostly used for planning. No progress on user stories other than finalizing. Backlog remains.

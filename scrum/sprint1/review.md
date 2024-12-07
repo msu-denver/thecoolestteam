@@ -1,7 +1,9 @@
 # Sprint Review
 
-Date/Time: 
+Date/Time: 11/21/24 - 15:30
 
-Participants: 
+Participants: Gage/Eldar/Jason/Jackson
 
-Notes...
+Could have done better establishing environment variables and database handling issues beforehand. Need to come to an agreement on a dataset to use, as well as an API. 
+
+Communication remains good.
