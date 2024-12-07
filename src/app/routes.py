@@ -11,11 +11,14 @@ import datetime
 from flask_wtf import FlaskForm
 from flask_caching import Cache
 
+
 class DeleteForm(FlaskForm):
     pass
 
+
 # Initialize Blueprint
 main = Blueprint('main', __name__)
+
 
 @main.route('/')
 def home():
@@ -32,8 +35,6 @@ def home():
             tvshow.poster_url = fetch_poster(tvshow.id, 'series')
             db.session.commit()
 
-
-    
     return render_template('home.html', movies=movies, tvshows=tvshows)
 
 
@@ -53,19 +54,23 @@ def login():
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', form=form)
 
+
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for('main.mainpage'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        hashed_password = bcrypt.generate_password_hash(
+            form.password.data).decode('utf-8')
+        new_user = User(username=form.username.data,
+                        email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form)
+
 
 @main.route('/logout')
 @login_required
@@ -73,6 +78,7 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('main.home'))
+
 
 @main.route('/mainpage')
 @login_required
@@ -94,12 +100,11 @@ def mainpage():
             if not tvshow.poster_url or tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
                 tvshow.poster_url = fetch_poster(tvshow.id, 'series')
                 db.session.commit()
-        
 
         recommendations_movies = randomMovies
         recommendations_tvshows = randomTVShows
 
-    else: #Generate genre weights
+    else:  # Generate genre weights
         # User has favorites, so do genre-based recommendations
         genre_counts = {}
         total_genres = 0
@@ -126,10 +131,13 @@ def mainpage():
 
         if not genre_counts:
             # If no genres found, fallback to random
-            recommendations_movies = Movie.query.order_by(func.random()).limit(10).all()
-            recommendations_tvshows = TVShow.query.order_by(func.random()).limit(10).all()
+            recommendations_movies = Movie.query.order_by(
+                func.random()).limit(10).all()
+            recommendations_tvshows = TVShow.query.order_by(
+                func.random()).limit(10).all()
         else:
-            genre_weights = {g: (count / total_genres) for g, count in genre_counts.items()}
+            genre_weights = {g: (count / total_genres)
+                             for g, count in genre_counts.items()}
 
             recommendations_movies = []
             recommendations_tvshows = []
@@ -144,10 +152,10 @@ def mainpage():
                 recommendations_movies.extend(movies)
 
                 tvshows = TVShow.query.filter(TVShow.genre.ilike(f"%{genre}%"))\
-                                    .order_by(func.random())\
-                                    .limit(num_tv_for_genre).all()
+                    .order_by(func.random())\
+                    .limit(num_tv_for_genre).all()
                 recommendations_tvshows.extend(tvshows)
-        
+
             # Ensure we have at least 10 of each
             if len(recommendations_movies) < 10:
                 extra = 10 - len(recommendations_movies)
@@ -167,7 +175,6 @@ def mainpage():
                 movie.poster_url = fetch_poster(movie.id, 'movie')
                 db.session.commit()
 
-        
         for tvshow in recommendations_tvshows:
             if not tvshow.poster_url or tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
                 tvshow.poster_url = fetch_poster(tvshow.id, 'series')
@@ -184,35 +191,38 @@ def media_detail(media_type, media_id):
         media = Movie.query.get_or_404(media_id)
     else:
         media = TVShow.query.get_or_404(media_id)
-    
-    reviews = Review.query.filter_by(movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).all()
+
+    reviews = Review.query.filter_by(movie_id=media.id if media_type == 'movie' else None,
+                                     tvshow_id=media.id if media_type == 'tvshow' else None).all()
     delete_form = DeleteForm()
 
-    dt = datetime.datetime.now() 
-    access_time = int(dt.strftime("%H%M")) # military time for easy comparison
-
+    dt = datetime.datetime.now()
+    access_time = int(dt.strftime("%H%M"))  # military time for easy comparison
 
     if media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image' or None or "N/A":
-        media.poster_url = fetch_poster(media.id, 'movie' if media_type == 'movie' else 'series')
+        media.poster_url = fetch_poster(
+            media.id, 'movie' if media_type == 'movie' else 'series')
         db.session.commit()
 
-    if media.trailer_fetch_time == None: # check if the trailer exists in database already
+    if media.trailer_fetch_time == None:  # check if the trailer exists in database already
         trailer = videoScraper(media.id)
-        media.trailer_fetch_time = access_time 
+        media.trailer_fetch_time = access_time
         media.trailer_url = trailer
         db.session.commit()
 
-    if (abs(access_time - media.trailer_fetch_time)) >= 100 :  # check if movie trailer in database has expired, if so, fetch a new one and update the fetch time
+    # check if movie trailer in database has expired, if so, fetch a new one and update the fetch time
+    if (abs(access_time - media.trailer_fetch_time)) >= 100:
         trailer = videoScraper(media.id)
         media.trailer_url = trailer
-        media.trailer_fetch_time = int(dt.strftime("%H%M")) 
+        media.trailer_fetch_time = int(dt.strftime("%H%M"))
         db.session.commit()
-        
+
     if request.method == 'POST':
         data = request.get_json()
         rating = data.get('rating')
         comment = data.get('comment')
-        newID = db.session.query(func.max(Review.id)).scalar() + 1 if db.session.query(func.max(Review.id)).scalar() else 1
+        newID = db.session.query(func.max(Review.id)).scalar(
+        ) + 1 if db.session.query(func.max(Review.id)).scalar() else 1
 
         if media_type == 'movie':
             for user_review in current_user.reviews:
@@ -226,9 +236,9 @@ def media_detail(media_type, media_id):
         try:
             review = Review(
                 id=newID,
-                user_id=current_user.id, 
-                rating=rating, 
-                comment=comment, 
+                user_id=current_user.id,
+                rating=rating,
+                comment=comment,
                 movie_id=media_id if media_type == 'movie' else None,
                 tvshow_id=media_id if media_type == 'tvshow' else None,
                 author=current_user
@@ -241,6 +251,7 @@ def media_detail(media_type, media_id):
             return jsonify({'success': False, 'message': str(e)})
 
     return render_template('media_detail.html', media=media, reviews=reviews, form=delete_form, media_type=media_type, trailer=media.trailer_url)
+
 
 @main.route('/profile/settings', methods=['GET', 'POST'])
 @login_required
@@ -255,25 +266,30 @@ def profile_settings():
                 if bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
                     # Check if new password is different from the old one
                     if form.newPassword.data != form.oldPassword.data:
-                        current_user.password = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+                        current_user.password = bcrypt.generate_password_hash(
+                            form.newPassword.data).decode('utf-8')
                         flash('Password updated successfully', 'success')
                     else:
                         db.session.commit()
-                        flash('New password cannot be the same as the old password.', 'danger')
-                        return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                        flash(
+                            'New password cannot be the same as the old password.', 'danger')
+                        # Redirect to profile settings page
+                        return redirect(url_for('main.profile_settings'))
                 else:
                     db.session.commit()
                     flash('Old password is incorrect', 'danger')
-                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                    # Redirect to profile settings page
+                    return redirect(url_for('main.profile_settings'))
             else:
                 flash('Password did not change', 'success')
-            
+
             # Update the user's email
             if form.newEmail.data != current_user.email:
                 if User.query.filter_by(email=form.newEmail.data).first():
-                    flash('Email is already taken','danger')
-                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
-                else:   
+                    flash('Email is already taken', 'danger')
+                    # Redirect to profile settings page
+                    return redirect(url_for('main.profile_settings'))
+                else:
                     current_user.email = form.newEmail.data
                     flash('Email updated successfully', 'success')
             else:
@@ -281,8 +297,9 @@ def profile_settings():
             # Update the user's username
             if form.newUsername.data != current_user.username:
                 if User.query.filter_by(username=form.newUsername.data).first():
-                    flash('Username is already taken','danger')
-                    return redirect(url_for('main.profile_settings'))  # Redirect to profile settings page
+                    flash('Username is already taken', 'danger')
+                    # Redirect to profile settings page
+                    return redirect(url_for('main.profile_settings'))
                 else:
                     current_user.username = form.newUsername.data
                     flash('Username updated successfully', 'success')
@@ -296,22 +313,25 @@ def profile_settings():
             print(e)
     return render_template('profile_settings.html', form=form)
 
+
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
 def profile(id):
+    # Load user assets
     user = User.query.get_or_404(id)
     is_admin = current_user.is_admin
-
+    # Load favorite assets
     user_favorites = user.favorites.all()
     favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
     favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
     return render_template('profile.html', user=user, is_admin=is_admin, favorite_movies=favorite_movies, favorite_tvshows=favorite_tvshows)
 
+
 @main.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
     form = AdminForm()
-    users = User.query.all() #Get all users
+    users = User.query.all()  # Get all users
     print(users)
     if not current_user.is_admin:
         flash("You are not authorized to access this page.")
@@ -319,33 +339,35 @@ def admin():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
         delete_user_id = request.form.get('delete_user_id')
-        #Toggle Admin
+        # Toggle Admin
         if user_id:
             user = User.query.get(user_id)
             if user and user.id != current_user.id:  # Ensure they aren't trying to de-admin themselves
                 user.is_admin = not user.is_admin
                 db.session.commit()
-                flash(f"User {user.username}'s admin privileges toggled.", 'success')
+                flash(
+                    f"User {user.username}'s admin privileges toggled.", 'success')
             else:
-                flash('You can not de-admin yourself','danger')
-        #Delete User
+                flash('You can not de-admin yourself', 'danger')
+        # Delete User
         if delete_user_id:
             user = User.query.get(delete_user_id)
             if user and user.id != current_user.id:  # Ensure they aren't trying to delete themselves
-                #Delete all reviews and favorites related to the user
+                # Delete all reviews and favorites related to the user
                 db.session.query(Review).filter_by(user_id=user_id).delete()
                 db.session.query(Favorite).filter_by(user_id=user_id).delete()
-                #Delete the user
+                # Delete the user
                 db.session.delete(user)
                 db.session.flush()
                 db.session.commit()
                 flash(f"User {user.username} deleted successfully.", 'success')
             else:
-                flash('You can not delete yourself','danger')
-        
+                flash('You can not delete yourself', 'danger')
+
         return redirect(url_for('main.admin'))
-    
-    return render_template('admin.html',form=form ,users=users)
+
+    return render_template('admin.html', form=form, users=users)
+
 
 @main.route('/add_to_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
 @login_required
@@ -354,15 +376,18 @@ def add_to_favorites(media_type, media_id):
         media = Movie.query.get_or_404(media_id)
     else:
         media = TVShow.query.get_or_404(media_id)
-    
-    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
+
+    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type ==
+                                        'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
     if favorite:
         return jsonify({'success': False, 'message': f'{media.title} is already in your favorites.'})
-    
-    favorite = Favorite(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None)
+
+    favorite = Favorite(user_id=current_user.id, movie_id=media.id if media_type ==
+                        'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None)
     db.session.add(favorite)
     db.session.commit()
     return jsonify({'success': True, 'message': f'{media.title} has been added to your favorites.'})
+
 
 @main.route('/remove_from_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
 @login_required
@@ -371,13 +396,15 @@ def remove_from_favorites(media_type, media_id):
         media = Movie.query.get_or_404(media_id)
     else:
         media = TVShow.query.get_or_404(media_id)
-    
-    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type == 'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
+
+    favorite = Favorite.query.filter_by(user_id=current_user.id, movie_id=media.id if media_type ==
+                                        'movie' else None, tvshow_id=media.id if media_type == 'tvshow' else None).first()
     if favorite:
         db.session.delete(favorite)
         db.session.commit()
         return jsonify({'success': True, 'message': f'{media.title} has been removed from your favorites.'})
     return jsonify({'success': False, 'message': f'{media.title} is not in your favorites.'})
+
 
 @main.route('/clear_favorites', methods=['POST'])
 @login_required
@@ -389,29 +416,33 @@ def clear_favorites():
     return jsonify({'success': True, 'message': 'All favorites have been cleared.'})
 
 # RANDOM ROUTE
+
+
 @main.route('/random')
 @login_required
 def random_route():
     choice = random.choice(['movie', 'tvshow'])
-    
+
     if choice == 'movie':
         random_media = Movie.query.order_by(func.random()).first()
     else:
         random_media = TVShow.query.order_by(func.random()).first()
-    
+
     if random_media:
         if not random_media.poster_url or random_media.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
-            random_media.poster_url = fetch_poster(random_media.id, 'movie' if choice == 'movie' else 'series')
+            random_media.poster_url = fetch_poster(
+                random_media.id, 'movie' if choice == 'movie' else 'series')
             db.session.commit()
         return redirect(url_for('main.media_detail', media_type=choice, media_id=random_media.id))
     else:
         flash(f'No {choice}s available.', 'warning')
         return redirect(url_for('main.mainpage'))
 
+
 @main.route('/autocomplete', methods=['GET'])
 def autocomplete():
     query = request.args.get('query', '', type=str)
-    
+
     # Fetch matching movies and TV shows
     movies = Movie.query.filter(Movie.title.ilike(f"%{query}%")).all()
     tv_shows = TVShow.query.filter(TVShow.title.ilike(f"%{query}%")).all()
@@ -425,6 +456,7 @@ def autocomplete():
 
     return jsonify(results)
 
+
 @main.route('/search_results', methods=['GET'])
 def search_results():
     query = request.args.get('query', '')
@@ -433,8 +465,10 @@ def search_results():
 
     results = cache.get(cache_key)
     if not results:
-        movies = Movie.query.filter(Movie.title.ilike(f"%{query}%")).order_by(Movie.title.desc()).paginate(page=page, per_page=10, error_out=False)
-        tv_shows = TVShow.query.filter(TVShow.title.ilike(f"%{query}%")).order_by(TVShow.title.desc()).paginate(page=page, per_page=10, error_out=False)
+        movies = Movie.query.filter(Movie.title.ilike(f"%{query}%")).order_by(
+            Movie.title.desc()).paginate(page=page, per_page=10, error_out=False)
+        tv_shows = TVShow.query.filter(TVShow.title.ilike(f"%{query}%")).order_by(
+            TVShow.title.desc()).paginate(page=page, per_page=10, error_out=False)
         results = {
             'movies': movies.items,
             'tv_shows': tv_shows.items,
@@ -447,9 +481,11 @@ def search_results():
 
 ## ERROR HANDLING ##
 
+
 @main.app_errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
+
 
 @main.app_errorhandler(500)
 def internal_error(error):
@@ -458,12 +494,14 @@ def internal_error(error):
 
 ## DEBUGGING ##
 
+
 @main.route('/debug_db')
 def debug_db():
     movie_count = Movie.query.count()
     tvshow_count = TVShow.query.count()
 
     return f"Movies: {movie_count}, TV Shows: {tvshow_count}, Current User ID:{current_user.id}"
+
 
 @main.route('/delete_review/<int:review_id>', methods=['POST'])
 @login_required

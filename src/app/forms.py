@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextA
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, Optional
 from app.models import User
 
+
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[
         DataRequired(),
@@ -13,8 +14,8 @@ class RegistrationForm(FlaskForm):
         Email()
     ])
     password = PasswordField('Password', validators=[Length(min=8),
-        DataRequired()
-    ])
+                                                     DataRequired()
+                                                     ])
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(),
         EqualTo('password')
@@ -24,12 +25,15 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
+            raise ValidationError(
+                'That username is taken. Please choose a different one.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
+            raise ValidationError(
+                'That email is taken. Please choose a different one.')
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[
@@ -48,19 +52,24 @@ class ReviewForm(FlaskForm):
         DataRequired()
     ])
 
-    rating = IntegerField ('Rating', validators=[
-        DataRequired(), NumberRange(min=0, max=10, message="Rating must be a number from 0 to 10 ")
+    rating = IntegerField('Rating', validators=[
+        DataRequired(), NumberRange(
+            min=0, max=10, message="Rating must be a number from 0 to 10 ")
     ])
 
     submit = SubmitField('Post Review')
-    
+
+
 class ProfileForm(FlaskForm):
     oldPassword = PasswordField('Old Password', validators=[Optional()])
-    newPassword = PasswordField('New Password',validators=[Length(min=8),Optional()])
+    newPassword = PasswordField('New Password', validators=[
+                                Length(min=8), Optional()])
     newEmail = StringField('New Email', validators=[DataRequired(), Email()])
     newUsername = StringField('New Username', validators=[DataRequired()])
-    newProfilepicture = FileField('New Profile Picture', validators=[Optional()])
+    newProfilepicture = FileField(
+        'New Profile Picture', validators=[Optional()])
     updateProfile = SubmitField('Update Profile')
+
 
 class AdminForm(FlaskForm):
     adminToggle = SubmitField("Admin Toggle")
