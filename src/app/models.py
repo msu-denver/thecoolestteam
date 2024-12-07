@@ -27,8 +27,8 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     # Relationships
-    favorites = relationship('Favorite', backref='owner', lazy='dynamic')
-    reviews = relationship('Review', backref='author', lazy='dynamic')
+    favorites = relationship('Favorite', backref='owner', lazy='dynamic', cascade="all, delete", passive_deletes=True)
+    reviews = relationship('Review', backref='author', lazy='dynamic', cascade="all, delete", passive_deletes=True)
     recommendations = relationship('Recommendation', backref='user', lazy='dynamic')
 
     def __repr__(self):
@@ -81,7 +81,7 @@ class TVShow(db.Model):
 class Favorite(db.Model):
     __tablename__ = 'favorite'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     movie_id = db.Column(db.String, db.ForeignKey('movie.id'), nullable=True)  # Changed to String
     tvshow_id = db.Column(db.String, db.ForeignKey('tv_show.id'), nullable=True)  # Changed to String
 
@@ -129,7 +129,7 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Float, nullable=False)
     comment = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     movie_id = db.Column(db.String, db.ForeignKey('movie.id'), nullable=True)  # Changed to String
     tvshow_id = db.Column(db.String, db.ForeignKey('tv_show.id'), nullable=True)  # Changed to String
     created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)

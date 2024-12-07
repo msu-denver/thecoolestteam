@@ -302,7 +302,7 @@ def profile(id):
     user = User.query.get_or_404(id)
     is_admin = current_user.is_admin
 
-    user_favorites = current_user.favorites.all()
+    user_favorites = user.favorites.all()
     favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
     favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
     return render_template('profile.html', user=user, is_admin=is_admin, favorite_movies=favorite_movies, favorite_tvshows=favorite_tvshows)
@@ -332,7 +332,12 @@ def admin():
         if delete_user_id:
             user = User.query.get(delete_user_id)
             if user and user.id != current_user.id:  # Ensure they aren't trying to delete themselves
+                #Delete all reviews and favorites related to the user
+                db.session.query(Review).filter_by(user_id=user_id).delete()
+                db.session.query(Favorite).filter_by(user_id=user_id).delete()
+                #Delete the user
                 db.session.delete(user)
+                db.session.flush()
                 db.session.commit()
                 flash(f"User {user.username} deleted successfully.", 'success')
             else:

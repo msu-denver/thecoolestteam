@@ -3,12 +3,7 @@
 {% block title %}Profile - {{ user.username }}{% endblock %}
 
 {% block content %}
-<h2>User Profile</h2>
-<ul class="list-group">
-    <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
-    <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-    <!-- Add more user details as needed -->
-</ul>
+<h1>{{ user.username }}'s Profile</h1>
 
 {% if user.id == current_user.id%}
 <a href="{{ url_for('main.profile_settings') }}" class="btn btn-secondary mt-3">Go to Profile Settings</a>
@@ -84,14 +79,21 @@
 </style>
 
 <div class="container mt-5">
+    {% if user.id == current_user.id%}
     <h2>Your Favorite Movies</h2>
+    {% endif %}
+    {% if user.id != current_user.id%}
+    <h2>{{ user.username }}'s Favorite Movies</h2>
+    {% endif %}
     {% if favorite_movies %}
     <div class="favorites-container-wrapper">
         <button class="arrow arrow-left" onclick="scrollFavorites('favoriteMoviesContainer', -300)">&#10094;</button>
         <div class="favorites-container" id="favoriteMoviesContainer">
             {% for movie in favorite_movies %}
             <div class="card">
-                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
+                <a href="{{ url_for('main.media_detail', media_type='movie', media_id=movie.id) }}">
+                    <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
+                </a>
                 <div class="card-body">
                     <h5 class="card-title">{{ movie.title }}</h5>
                     <p class="card-text"><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
@@ -104,17 +106,29 @@
         <button class="arrow arrow-right" onclick="scrollFavorites('favoriteMoviesContainer', 300)">&#10095;</button>
     </div>
     {% else %}
-    <p>You have no favorite movies.</p>
+    {% if user.id == current_user.id%}
+    <p>You have no favorite Movies</p>
+    {% endif %}
+    {% if user.id != current_user.id%}
+    <p>{{ user.username }} has no favorite Movies</p>
+    {% endif %}
     {% endif %}
 
+    {% if user.id == current_user.id%}
     <h2>Your Favorite TV Shows</h2>
+    {% endif %}
+    {% if user.id != current_user.id%}
+    <h2>{{ user.username }}'s Favorite TV Shows</h2>
+    {% endif %}
     {% if favorite_tvshows %}
     <div class="favorites-container-wrapper">
         <button class="arrow arrow-left" onclick="scrollFavorites('favoriteTVShowsContainer', -300)">&#10094;</button>
         <div class="favorites-container" id="favoriteTVShowsContainer">
             {% for tvshow in favorite_tvshows %}
             <div class="card">
-                <img src="{{ tvshow.poster_url }}" class="card-img-top" alt="{{ tvshow.title }} Poster">
+                <a href="{{ url_for('main.media_detail', media_type='movie', media_id=movie.id) }}">
+                    <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
+                </a>
                 <div class="card-body">
                     <h5 class="card-title">{{ tvshow.title }}</h5>
                     <p class="card-text"><strong>Release Year:</strong> {{ tvshow.release_date.year }}</p>
@@ -127,7 +141,12 @@
         <button class="arrow arrow-right" onclick="scrollFavorites('favoriteTVShowsContainer', 300)">&#10095;</button>
     </div>
     {% else %}
-    <p>You have no favorite TV shows.</p>
+    {% if user.id == current_user.id%}
+    <p>You have no favorite TV Shows</p>
+    {% endif %}
+    {% if user.id != current_user.id%}
+    <p>{{ user.username }} has no favorite TV Shows</p>
+    {% endif %}
     {% endif %}
 
     <div class="text-center mt-4">
