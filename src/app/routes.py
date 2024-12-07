@@ -306,7 +306,7 @@ def autocomplete():
     results = [
         {'id': movie.id, 'title': movie.title, 'type': 'movie'} for movie in movies
     ] + [
-        {'id': tv_show.id, 'title': tv_show.title, 'type': 'tv_show'} for tv_show in tv_shows
+        {'id': tv_show.id, 'title': tv_show.title, 'type': 'tvshow'} for tv_show in tv_shows
     ]
 
     return jsonify(results)
