@@ -48,7 +48,6 @@
         text-overflow: ellipsis;
         max-width: 100%;
     }
-
     .arrow {
         position: absolute;
         top: 50%;
@@ -68,57 +67,72 @@
     .arrow-right {
         right: 0;
     }
+    .btn_btn-danger_btn-sm{ /* changed the color to zomp and rounded the edges*/
+        background-color: #4da394;
+        color: white;
+        border: none;
+        border-radius:15px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    .btn_clr_fav{ /* changed the color to red and rounded the edges*/
+        background-color: #D54751;
+        color: white;
+        border: none;
+        border-radius:15px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
 </style>
 
 <div class="container mt-5">
-    <h2>Your Favorite Movies</h2>
+    <h2>Your Favorite Movies</h2> <!-- title on favorite  -->
     {% if favorite_movies %}
-    <div class="favorites-container-wrapper">
-        <button class="arrow arrow-left" onclick="scrollFavorites('favoriteMoviesContainer', -300)">&#10094;</button>
-        <div class="favorites-container" id="favoriteMoviesContainer">
-            {% for movie in favorite_movies %}
-            <div class="card">
-                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
-                <div class="card-body">
-                    <h5 class="card-title">{{ movie.title }}</h5>
-                    <p class="card-text"><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
-                    <button class="btn btn-danger btn-sm"
-                        onclick="removeFromFavorites('movie', '{{ movie.id }}')">Remove from Favorites</button>
-                </div>
+        <div class="favorites-container-wrapper">
+            <button class="arrow arrow-left" onclick="scrollFavorites('favoriteMoviesContainer', -300)">&#10094;</button>
+            <div class="favorites-container" id="favoriteMoviesContainer">
+                {% for movie in favorite_movies %}
+                    <div class="card">
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie.title }}</h5>
+                            <p class="card-text"><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
+                            <button class="btn btn-danger btn-sm" onclick="removeFromFavorites('movie', '{{ movie.id }}')">Remove from Favorites</button>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <button class="arrow arrow-right" onclick="scrollFavorites('favoriteMoviesContainer', 300)">&#10095;</button>
         </div>
-        <button class="arrow arrow-right" onclick="scrollFavorites('favoriteMoviesContainer', 300)">&#10095;</button>
-    </div>
     {% else %}
     <p>You have no favorite movies.</p>
     {% endif %}
 
-    <h2>Your Favorite TV Shows</h2>
+    <h2>Your Favorite TV Shows</h2> <!-- title on favorite  -->
     {% if favorite_tvshows %}
-    <div class="favorites-container-wrapper">
-        <button class="arrow arrow-left" onclick="scrollFavorites('favoriteTVShowsContainer', -300)">&#10094;</button>
-        <div class="favorites-container" id="favoriteTVShowsContainer">
-            {% for tvshow in favorite_tvshows %}
-            <div class="card">
-                <img src="{{ tvshow.poster_url }}" class="card-img-top" alt="{{ tvshow.title }} Poster">
-                <div class="card-body">
-                    <h5 class="card-title">{{ tvshow.title }}</h5>
-                    <p class="card-text"><strong>Release Year:</strong> {{ tvshow.release_date.year }}</p>
-                    <button class="btn btn-danger btn-sm"
-                        onclick="removeFromFavorites('tvshow', '{{ tvshow.id }}')">Remove from Favorites</button>
-                </div>
+        <div class="favorites-container-wrapper">
+            <button class="arrow arrow-left" onclick="scrollFavorites('favoriteTVShowsContainer', -300)">&#10094;</button>
+            <div class="favorites-container" id="favoriteTVShowsContainer">
+                {% for tvshow in favorite_tvshows %}
+                    <div class="card">
+                        <img src="{{ tvshow.poster_url }}" class="card-img-top" alt="{{ tvshow.title }} Poster">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tvshow.title }}</h5>
+                            <p class="card-text"><strong>Release Year:</strong> {{ tvshow.release_date.year }}</p>
+                            <button class="btn btn-danger btn-sm" onclick="removeFromFavorites('tvshow', '{{ tvshow.id }}')">Remove from Favorites</button>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <button class="arrow arrow-right" onclick="scrollFavorites('favoriteTVShowsContainer', 300)">&#10095;</button>
         </div>
-        <button class="arrow arrow-right" onclick="scrollFavorites('favoriteTVShowsContainer', 300)">&#10095;</button>
-    </div>
     {% else %}
     <p>You have no favorite TV shows.</p>
     {% endif %}
 
     <div class="text-center mt-4">
-        <button class="btn btn-danger" onclick="confirmClearFavorites()">Clear Favorites</button>
+        <button class="btn_clr_fav" onclick="confirmClearFavorites()">Clear Favorites</button> <!-- clear all favorite button -->
     </div>
 </div>
 

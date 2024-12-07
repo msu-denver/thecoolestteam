@@ -61,9 +61,8 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <!-- Toggler for responsive navbar -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <!-- Navbar Content -->
@@ -72,7 +71,8 @@
                 <div class="navbar-center position-relative">
                     <a class="navbar-brand" href="{{ url_for('main.home') }}">CoolestTeam</a>
                     <form class="d-flex" action="{{ url_for('main.search_results') }}" method="get">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query" id="search-input">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                            name="query" id="search-input">
                         <button class="btn btn-outline-success me-2" type="submit">Search</button>
                         <a class="btn btn-outline-primary" href="{{ url_for('main.random_route') }}">Random</a>
                         <a class="btn btn-outline-primary ms-2" href="{{ url_for('main.mainpage') }}">Recommended</a>
@@ -90,16 +90,14 @@
                                 Menu
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('main.favorites') }}">Favorites</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
                                 </li>
                                 <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Sign Out</a></li>
                             </ul>
                         </li>
                         <!-- Username Link -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.profile',id=current_user.id) }}">{{ current_user.username }}</a>
+                            <a class="nav-link" href="{{ url_for('main.profile',id=current_user.id) }}">{{
+                                current_user.username }}</a>
                         </li>
                     </ul>
                     {% else %}
@@ -137,16 +135,16 @@
     {% block scripts %}{% endblock %}
 
     <script type="text/javascript">
-        function simple_action(target){
+        function simple_action(target) {
             window.location.replace(target);
         }
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('search-input');
             const dropdown = document.getElementById('autocomplete-dropdown');
 
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const query = searchInput.value;
                 if (query.length > 2) {
                     fetch(`{{ url_for('main.autocomplete') }}?query=${query}`)
@@ -167,7 +165,7 @@
                 }
             });
 
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
                     dropdown.style.display = 'none';
                 }

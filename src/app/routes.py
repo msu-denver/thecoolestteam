@@ -317,10 +317,14 @@ def profile_settings():
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
 @login_required
 def profile(id):
+    #Load user assets
     user = User.query.get_or_404(id)
     is_admin = current_user.is_admin
-    return render_template('profile.html', user=user, is_admin=is_admin)
-
+    #Load favorite assets
+    user_favorites = user.favorites.all()
+    favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
+    favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
+    return render_template('profile.html', user=user, is_admin=is_admin, favorite_movies=favorite_movies, favorite_tvshows=favorite_tvshows)
 
 @main.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -333,16 +337,34 @@ def admin():
         return redirect(url_for('index'))
     if request.method == 'POST':
         user_id = request.form.get('user_id')
+        delete_user_id = request.form.get('delete_user_id')
+        #Toggle Admin
         if user_id:
             user = User.query.get(user_id)
-            if user and user.id != current_user.id:
-                user.is_admin = not user.is_admin  # Toggle admin status
+            if user and user.id != current_user.id:  # Ensure they aren't trying to de-admin themselves
+                user.is_admin = not user.is_admin
                 db.session.commit()
-
-        return redirect(url_for('main.profile_settings'))
-
-    return render_template('admin.html', form=form, users=users)
-
+                flash(f"User {user.username}'s admin privileges toggled.", 'success')
+            else:
+                flash('You can not de-admin yourself','danger')
+        #Delete User
+        if delete_user_id:
+            user = User.query.get(delete_user_id)
+            if user and user.id != current_user.id:  # Ensure they aren't trying to delete themselves
+                #Delete all reviews and favorites related to the user
+                db.session.query(Review).filter_by(user_id=user_id).delete()
+                db.session.query(Favorite).filter_by(user_id=user_id).delete()
+                #Delete the user
+                db.session.delete(user)
+                db.session.flush()
+                db.session.commit()
+                flash(f"User {user.username} deleted successfully.", 'success')
+            else:
+                flash('You can not delete yourself','danger')
+        
+        return redirect(url_for('main.admin'))
+    
+    return render_template('admin.html',form=form ,users=users)
 
 @main.route('/add_to_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
 @login_required
@@ -389,15 +411,6 @@ def clear_favorites():
         db.session.delete(favorite)
     db.session.commit()
     return jsonify({'success': True, 'message': 'All favorites have been cleared.'})
-
-
-@main.route('/favorites')
-@login_required
-def favorites():
-    user_favorites = current_user.favorites.all()
-    favorite_movies = [fav.movie for fav in user_favorites if fav.movie_id]
-    favorite_tvshows = [fav.tv_show for fav in user_favorites if fav.tvshow_id]
-    return render_template('favorites.html', favorite_movies=favorite_movies, favorite_tvshows=favorite_tvshows)
 
 # RANDOM ROUTE
 
