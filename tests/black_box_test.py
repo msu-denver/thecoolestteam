@@ -46,8 +46,8 @@ class ReviewTest(unittest.TestCase):
         starElement = WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.ID, 'star5')))
         starElement.click()
 
-        comment = self.browser.find_element(By.ID, 'comment')
-        comment.send_keys('test')
+        newComment = self.browser.find_element(By.ID, 'comment')
+        newComment.send_keys('test')
 
         submitButton = self.browser.find_element(By.ID, 'submit_review')
         submitButton.click()
