@@ -33,7 +33,18 @@ US9 - Movie/TV User Review                  POINTS: 10
 US10 - Movie/TV Recommendation Page         POINTS: 15
 
 ## Sprint 1 Work Splits ##
-- 
+
+Jason - file to initialize database
+Jason - favorites list
+Jason - Movie/TV Recommendation Page
+Eldar - search and filter
+Eldar - List Filtered Movies/TV
+Sadeq - Login Logout
+Sadeq - User Registration and Authentication
+Gage - Movie/TV Object Page
+Gage - Movie/TV User Review
+Jackson - User Account Control
+Jackson - Administrator Account Control
 
 ## API and Database Notes
 

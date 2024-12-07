@@ -2,9 +2,7 @@
 
 ## Table of Contents
 
-- [STEPS TO RESTORE DATABASE USING DUMP FILE](#dump-file)
 - [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
   - [1. Clone the Repository](#1-clone-the-repository)
   - [2. Set Up Environment Variables](#2-set-up-environment-variables)
@@ -18,54 +16,14 @@
 - [Classes](#classes)
 - [Model](#model)
 - [User Stories](#user-stories)
+- [STEPS TO RESTORE DATABASE USING DUMP FILE](#dump-file)
 
 - [Contributing](#contributing)
 - [License](#license)
 
-## Dump File
 
-- The dump file is a snapshot of the populated database. Use this instead of importing the data from the CSV file manually.
-- It is located in the `src/static` folder.
 
-- Ensure Docker containers are running via:
 
-    ```bash
-    docker-compose up -d
-    ```
-
-- In Bash/WSL:
-
-    - Copy the dump file to the `db` container:
-
-    ```bash
-    docker cp src/static/cool_movie_list.dump $(docker-compose ps -q db):/tmp/cool_movie_list.dump
-    ```
-
-    - Restore the database using `pg_restore`:
-
-    ```bash
-    docker-compose exec db pg_restore -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
-    ```
-
-- In PowerShell:
-
-    - Retrieve the database container ID:
-
-    ```powershell
-    $containerId = docker-compose ps -q db
-    ```
-
-    - Copy the dump file to the `db` container:
-
-    ```powershell
-    docker cp src/static/cool_movie_list.dump "${containerId}:/tmp/cool_movie_list.dump"
-    ```
-
-    - Restore the database using `pg_restore`:
-
-    ```powershell
-    docker-compose exec db pg_restore --clean -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
-    ```
 
 ## Introduction
 
@@ -309,3 +267,51 @@ The final product must demonstrate the integrity of at least 5 out of the 6 plan
 ```
 docker compose up
 ``` -->
+
+# ## Dump File (OPTIONAL)
+
+- WARNING: Database models may not be configured for full IMDB dataset.
+- If you wish to test the app with the full dataset, see below.
+- Dump file exists in src/app/static/cool_movie_list.dump containing the entire IMDB dataset (1m+ entries)
+- The dump file is a snapshot of the populated database. Use this instead of importing the data from the CSV file manually.
+- It is located in the `src/static` folder.
+
+- Ensure Docker containers are running via:
+
+    ```bash
+    docker-compose up -d
+    ```
+
+- In Bash/WSL:
+
+    - Copy the dump file to the `db` container:
+
+    ```bash
+    docker cp src/static/cool_movie_list.dump $(docker-compose ps -q db):/tmp/cool_movie_list.dump
+    ```
+
+    - Restore the database using `pg_restore`:
+
+    ```bash
+    docker-compose exec db pg_restore -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
+    ```
+
+- In PowerShell:
+
+    - Retrieve the database container ID:
+
+    ```powershell
+    $containerId = docker-compose ps -q db
+    ```
+
+    - Copy the dump file to the `db` container:
+
+    ```powershell
+    docker cp src/static/cool_movie_list.dump "${containerId}:/tmp/cool_movie_list.dump"
+    ```
+
+    - Restore the database using `pg_restore`:
+
+    ```powershell
+    docker-compose exec db pg_restore --clean -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
+    ```

@@ -55,9 +55,13 @@ class ReviewForm(FlaskForm):
     submit = SubmitField('Post Review')
     
 class ProfileForm(FlaskForm):
-    oldPassword = PasswordField('Old Password', validators=[DataRequired()])
+    oldPassword = PasswordField('Old Password', validators=[Optional()])
     newPassword = PasswordField('New Password',validators=[Length(min=8),Optional()])
     newEmail = StringField('New Email', validators=[DataRequired(), Email()])
     newUsername = StringField('New Username', validators=[DataRequired()])
     newProfilepicture = FileField('New Profile Picture', validators=[Optional()])
     updateProfile = SubmitField('Update Profile')
+
+class AdminForm(FlaskForm):
+    adminToggle = SubmitField("Admin Toggle")
+    deleteUser = SubmitField("Delete User")

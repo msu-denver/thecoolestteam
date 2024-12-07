@@ -11,16 +11,17 @@ app = create_app()
 
 def clear_data():
     with app.app_context():
-        db.session.execute(text('DELETE FROM movie'))
-        db.session.execute(text('DELETE FROM tv_show'))
-        db.session.execute(text('DELETE FROM "user"'))  # "user" is a reserved keyword in SQL
-        db.session.execute(text('DELETE FROM favorite'))
-        db.session.execute(text('DELETE FROM favorites'))
-        db.session.execute(text('DELETE FROM recommendation'))
-        db.session.execute(text('DELETE FROM review'))
-        db.session.commit()
-        print("All data cleared from the database.")
-
+        try:
+            truncate_statement = """
+            TRUNCATE TABLE review, recommendation, favorite, movie, tv_show, "user" RESTART IDENTITY CASCADE;
+            """
+            db.session.execute(text(truncate_statement))
+            db.session.commit()
+            print("All data cleared from the database.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"An error occurred while clearing data: {e}")
+            
 def import_data(csv_filepath):
     with app.app_context():
         with open(csv_filepath, encoding='utf-8') as csvfile:
@@ -46,7 +47,7 @@ def import_data(csv_filepath):
                 except ValueError:
                     releaseYear = None
 
-                if not entry_id or not title or not type_:
+                if not entry_id or not title or not type_ or not genres or averageRating is None or numVotes is None or releaseYear is None:
                     print(f"Row {total_rows}: Missing required fields. Skipping.")
                     skipped_rows += 1
                     continue
@@ -73,7 +74,7 @@ def import_data(csv_filepath):
                     db.session.add(movie)
                     imported_movies += 1
 
-                elif type_ in ['tvshow', 'tvseries', 'tvminiseries']:
+                elif type_ in ['tvseries']:
                     # Check if the TV show already exists to avoid duplicates
                     existing_tvshow = TVShow.query.filter_by(id=entry_id).first()
                     if existing_tvshow:
@@ -109,7 +110,7 @@ def import_data(csv_filepath):
 
 if __name__ == '__main__':
     # Define the path to your CSV file
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'top_movies.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'top_media.csv')
     
     if os.path.exists(csv_path):
         clear_data()  # Clear existing data before importing new data
