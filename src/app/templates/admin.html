@@ -2,22 +2,22 @@
 {% block title %}Admin Settings - {{ current_user.username }}{% endblock %}
 {% block content %}
 <h2>Admin Settings</h2>
-<form method="POST" action="{{ url_for('main.profile_settings') }}">
-    {{ form.hidden_tag() }} <!-- CSRF protection -->
-    <table>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ 'Admin' if user.is_admin else 'Not Admin' }}</td>
-                <td>
-                    {% if user.id != current_user.id %}
-                    <button type="submit" name="user_id" value="{{ user.id }}">Toggle Admin</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</form>>
+<form method="POST" action="{{ url_for('main.admin') }}">
+    {{ form.hidden_tag() }}
+
+    <!-- List users with buttons to toggle admin or delete -->
+    {% for user in users %}
+    <ul class="list-group">
+        <li><a href="{{url_for('main.profile', id=user.id)}}">{{ user.username }} (Admin: {{ 'Yes' if user.is_admin else 'No' }})</a>
+        <button type="submit" name="user_id" value="{{ user.id }}">
+            {{ form.adminToggle.label.text }}
+        </button>
+        <button type="submit" name="delete_user_id" value="{{ user.id }}">
+            {{ form.deleteUser.label.text }}
+        </button>
+    </li>
+    </ul>
+    {% endfor %}
+</form>
+
 {% endblock %}
