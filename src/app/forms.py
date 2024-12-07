@@ -61,3 +61,7 @@ class ProfileForm(FlaskForm):
     newUsername = StringField('New Username', validators=[DataRequired()])
     newProfilepicture = FileField('New Profile Picture', validators=[Optional()])
     updateProfile = SubmitField('Update Profile')
+
+class AdminForm(FlaskForm):
+    adminToggle = SubmitField("Admin Toggle")
+    deleteUser = SubmitField("Delete User")

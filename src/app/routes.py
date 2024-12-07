@@ -4,7 +4,7 @@ from app import db, bcrypt, cache
 from utils import fetch_poster
 from ImdbScraper import videoScraper
 from app.models import User, Movie, TVShow, Favorite, Recommendation, Review
-from app.forms import RegistrationForm, LoginForm, ProfileForm, ReviewForm
+from app.forms import RegistrationForm, LoginForm, ProfileForm, ReviewForm, AdminForm
 from sqlalchemy.sql.expression import func
 import random
 import datetime
@@ -152,7 +152,6 @@ def profile_settings():
     if not form.validate_on_submit():
         print(form.errors)
     if form.validate_on_submit():
-        tempPassword = current_user.password
         try:
             # Update the user's password
             if form.newPassword.data:
@@ -204,26 +203,29 @@ def profile_settings():
 @login_required
 def profile(id):
     user = User.query.get_or_404(id)
-    return render_template('profile.html', user=user)
+    is_admin = current_user.is_admin
+    return render_template('profile.html', user=user, is_admin=is_admin)
 
-@main.route('/admin')
+@main.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    if current_user.is_admin == False:
+    form = AdminForm()
+    users = User.query.all() #Get all users
+    print(users)
+    if not current_user.is_admin:
         flash("You are not authorized to access this page.")
-        return redirect(url_for('main.home'))
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        if user_id:
+            user = User.query.get(user_id)
+            if user and user.id != current_user.id:
+                user.is_admin = not user.is_admin  # Toggle admin status
+                db.session.commit()
+
+        return redirect(url_for('main.profile_settings'))
     
-    if current_user.id == id:
-        flash("You cannot change your own admin status.")
-        return redirect(url_for('main.admin'))
-    
-    user = User.query.get(id)
-    if user:
-        user.is_admin = not user.is_admin
-        db.session.commit()
-        flash(f"User {user.username} is now {'an admin' if user.is_admin else 'not an admin'}")
-    
-    return render_template('admin.html')
+    return render_template('admin.html',form=form ,users=users)
 
 @main.route('/add_to_favorites/<string:media_type>/<string:media_id>', methods=['POST'])
 @login_required
