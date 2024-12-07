@@ -49,9 +49,12 @@
     }
 
     .recommendations-container .card-text {
-        white-space: normal; /* Allow line breaks */
-        overflow-wrap: break-word; /* Break long words if necessary */
-        text-align: left; /* Optional: Align text to the left for better readability */
+        white-space: normal;
+        /* Allow line breaks */
+        overflow-wrap: break-word;
+        /* Break long words if necessary */
+        text-align: left;
+        /* Optional: Align text to the left for better readability */
     }
 
     .arrow {
@@ -80,7 +83,8 @@
     <h2>Recommended Movies</h2>
     {% if recommendations_movies %}
     <div class="recommendations-container-wrapper">
-        <button class="arrow arrow-left" onclick="scrollRecommendations('recommendedMoviesContainer', -300)">&#10094;</button>
+        <button class="arrow arrow-left"
+            onclick="scrollRecommendations('recommendedMoviesContainer', -300)">&#10094;</button>
         <div class="recommendations-container" id="recommendedMoviesContainer">
             {% for movie in recommendations_movies %}
             <div class="card">
@@ -95,7 +99,8 @@
             </div>
             {% endfor %}
         </div>
-        <button class="arrow arrow-right" onclick="scrollRecommendations('recommendedMoviesContainer', 300)">&#10095;</button>
+        <button class="arrow arrow-right"
+            onclick="scrollRecommendations('recommendedMoviesContainer', 300)">&#10095;</button>
     </div>
     {% else %}
     <p>No recommended movies available.</p>
@@ -104,7 +109,8 @@
     <h2>Recommended TV Shows</h2>
     {% if recommendations_tvshows %}
     <div class="recommendations-container-wrapper">
-        <button class="arrow arrow-left" onclick="scrollRecommendations('recommendedTVShowsContainer', -300)">&#10094;</button>
+        <button class="arrow arrow-left"
+            onclick="scrollRecommendations('recommendedTVShowsContainer', -300)">&#10094;</button>
         <div class="recommendations-container" id="recommendedTVShowsContainer">
             {% for tvshow in recommendations_tvshows %}
             <div class="card">
@@ -119,7 +125,8 @@
             </div>
             {% endfor %}
         </div>
-        <button class="arrow arrow-right" onclick="scrollRecommendations('recommendedTVShowsContainer', 300)">&#10095;</button>
+        <button class="arrow arrow-right"
+            onclick="scrollRecommendations('recommendedTVShowsContainer', 300)">&#10095;</button>
     </div>
     {% else %}
     <p>No recommended TV shows available.</p>

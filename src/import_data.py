@@ -110,7 +110,7 @@ def import_data(csv_filepath):
 
 if __name__ == '__main__':
     # Define the path to your CSV file
-    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'top_media.csv')
+    csv_path = os.path.join(os.path.dirname(__file__), 'data', 'imdb_small.csv')
     
     if os.path.exists(csv_path):
         clear_data()  # Clear existing data before importing new data
