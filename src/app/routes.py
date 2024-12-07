@@ -77,7 +77,104 @@ def logout():
 @main.route('/mainpage')
 @login_required
 def mainpage():
-    return render_template('mainpage.html')  # Ensure this template exists
+    # Recomendation for the user
+    user_favorites = Favorite.query.filter_by(user_id=current_user.id).all()
+    if not user_favorites:
+        # No favorites yet, just show random recommendations
+        randomMovies = Movie.query.order_by(func.random()).limit(10).all()
+        randomTVShows = TVShow.query.order_by(func.random()).limit(10).all()
+
+        # Fetch and update movie posters
+        for movie in randomMovies:
+            if not movie.poster_url or movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+                movie.poster_url = fetch_poster(movie.id, 'movie')
+                db.session.commit()
+        # Fetch and update TV show posters
+        for tvshow in randomTVShows:
+            if not tvshow.poster_url or tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+                tvshow.poster_url = fetch_poster(tvshow.id, 'series')
+                db.session.commit()
+        
+
+        recommendations_movies = randomMovies
+        recommendations_tvshows = randomTVShows
+
+    else: #Generate genre weights
+        # User has favorites, so do genre-based recommendations
+        genre_counts = {}
+        total_genres = 0
+
+        # Extract genres from the user's favorites
+        for favorite in user_favorites:
+            if favorite.movie_id:
+                movie = Movie.query.get(favorite.movie_id)
+                if movie and movie.genre:
+                    # Split the genre string by commas
+                    for g in movie.genre.split(','):
+                        g = g.strip()
+                        if g:
+                            genre_counts[g] = genre_counts.get(g, 0) + 1
+                            total_genres += 1
+            elif favorite.tvshow_id:
+                tvshow = TVShow.query.get(favorite.tvshow_id)
+                if tvshow and tvshow.genre:
+                    for g in tvshow.genre.split(','):
+                        g = g.strip()
+                        if g:
+                            genre_counts[g] = genre_counts.get(g, 0) + 1
+                            total_genres += 1
+
+        if not genre_counts:
+            # If no genres found, fallback to random
+            recommendations_movies = Movie.query.order_by(func.random()).limit(10).all()
+            recommendations_tvshows = TVShow.query.order_by(func.random()).limit(10).all()
+        else:
+            genre_weights = {g: (count / total_genres) for g, count in genre_counts.items()}
+
+            recommendations_movies = []
+            recommendations_tvshows = []
+
+            for genre, weiht in genre_weights.items():
+                num_movies_for_genre = int(weiht * 10)
+                num_tv_for_genre = int(weiht * 10)
+
+                movies = Movie.query.filter(Movie.genre.ilike(f"%{genre}%"))\
+                                    .order_by(func.random())\
+                                    .limit(num_movies_for_genre).all()
+                recommendations_movies.extend(movies)
+
+                tvshows = TVShow.query.filter(TVShow.genre.ilike(f"%{genre}%"))\
+                                    .order_by(func.random())\
+                                    .limit(num_tv_for_genre).all()
+                recommendations_tvshows.extend(tvshows)
+        
+            # Ensure we have at least 10 of each
+            if len(recommendations_movies) < 10:
+                extra = 10 - len(recommendations_movies)
+                recommendations_movies.extend(
+                    Movie.query.order_by(func.random()).limit(extra).all()
+                )
+
+            if len(recommendations_tvshows) < 10:
+                extra = 10 - len(recommendations_tvshows)
+                recommendations_tvshows.extend(
+                    TVShow.query.order_by(func.random()).limit(extra).all()
+                )
+
+        # Fetch and update movie posters and TV show posters
+        for movie in recommendations_movies:
+            if not movie.poster_url or movie.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+                movie.poster_url = fetch_poster(movie.id, 'movie')
+                db.session.commit()
+
+        
+        for tvshow in recommendations_tvshows:
+            if not tvshow.poster_url or tvshow.poster_url == 'https://via.placeholder.com/300x450.png?text=No+Image':
+                tvshow.poster_url = fetch_poster(tvshow.id, 'series')
+                db.session.commit()
+
+    return render_template('mainpage.html', recommendations_movies=recommendations_movies, recommendations_tvshows=recommendations_tvshows)
+
 
 # MEDIA DETAIL ROUTE
 @main.route('/media/<string:media_type>/<string:media_id>', methods=['GET', 'POST'])
