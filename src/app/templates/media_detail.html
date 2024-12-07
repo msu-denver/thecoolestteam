@@ -70,7 +70,7 @@
         {% endif %}
 
         <div class="d-grid gap-2">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">Write
+            <button type="button" class="btn btn-primary" id ="review_button" data-bs-toggle="modal" data-bs-target="#reviewModal">Write
                 Review</button>
             <button type="button" class="btn btn-outline-success" id="favoriteButton"
                 onclick="toggleFavorite('{{ media_type }}', '{{ media.id }}')">
@@ -106,10 +106,9 @@
     {% for review in reviews %}
     <div class="container" tabindex="-1">
         <div class="bg-body-tertiary p-3 rounded">
-            <h5><a href="{{url_for('main.profile', id=review.user_id)}}">{{review.author.username}} </a>
+            <h5><a href="{{url_for('main.profile', id=review.user_id)}}" id="review_username">{{review.author.username}} </a>
                 {% if current_user.is_admin %}
-                <button class="btn btn-danger btn-sm float-end"
-                    onclick="confirmDelete('{{ url_for('main.delete_review', review_id=review.id) }}')">X</button>
+                <button id="delete_button" class="btn btn-danger btn-sm float-end" onclick="confirmDelete('{{ url_for('main.delete_review', review_id=review.id) }}')">X</button>
                 {% endif %}
             </h5>
             <hr>
@@ -119,13 +118,13 @@
                 {% endfor %}
             </p>
             <p>Review Date: {{ review.created_at.year }}/{{ review.created_at.month }}/{{ review.created_at.day }}</p>
-            <p>{{ review.comment }}</p>
+            <p id = "user_comment">{{ review.comment }}</p>
         </div>
     </div>
     <p></p>
     {% endfor %}
     {% else %}
-    <p style="text-align: center">Be The First To Review This {{ media_type|capitalize }}!</p>
+    <p id ="no_reviews" style="text-align: center">Be The First To Review This {{ media_type|capitalize }}!</p>
     {% endif %}
 </div>
 <!-- Confirmation Modal -->
@@ -143,7 +142,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
                 <form id="deleteForm" method="POST" style="display: inline;">
                     {{ form.hidden_tag() }}
-                    <button type="submit" class="btn btn-danger">Confirm</button>
+                    <button type="submit" class="btn btn-danger" id="confirm_delete">Confirm</button>
                 </form>
             </div>
         </div>
@@ -161,11 +160,11 @@
                     <div class="mb-3">
                         <label for="rating" class="form-label">Rating</label>
                         <div id="starRating" class="star-rating">
-                            <span class="star" data-value="1">&#9733;</span>
-                            <span class="star" data-value="2">&#9733;</span>
-                            <span class="star" data-value="3">&#9733;</span>
-                            <span class="star" data-value="4">&#9733;</span>
-                            <span class="star" data-value="5">&#9733;</span>
+                            <span id="star1" class="star" data-value="1">&#9733;</span>
+                            <span id="star2"  class="star" data-value="2">&#9733;</span>
+                            <span id="star3"  class="star" data-value="3">&#9733;</span>
+                            <span id="star4"  class="star" data-value="4">&#9733;</span>
+                            <span id="star5"  class="star" data-value="5">&#9733;</span>
                         </div>
                         <input type="hidden" id="rating" name="rating" required>
                     </div>
@@ -173,7 +172,7 @@
                         <label for="comment" class="form-label">Comment</label>
                         <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button id="submit_review" type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>
