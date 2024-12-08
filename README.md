@@ -11,23 +11,17 @@
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Features](#features)
-- [Color Pallette](#color-pallette)
 - [Project Structure](#project-structure)
 - [Classes](#classes)
 - [Model](#model)
 - [User Stories](#user-stories)
 - [STEPS TO RESTORE DATABASE USING DUMP FILE](#dump-file)
 
-- [Contributing](#contributing)
-- [License](#license)
-
-
-
-
-
 ## Introduction
 
-WORK IN PROGRESS
+**The Coolest Team** is a web application designed to provide users with a simple and easy-to-use platform for managing and exploring movies and TV shows. Our application allows users to register, search for media, create personalized favorites lists, write reviews, and receive tailored recommendations based on their preferences. Administrators have enhanced control to manage user accounts and oversee content, including deleting user reviews and toggling the admin status of existing users. 
+
+This application was tested using the full IMDB dataset, including over 1m+ unique entries for both Movies and TV shows. To make it easier to use, the production version here is provided with a smaller dataset of the top 1000 top movies and TV shows.
 
 ## Prerequisites
 
@@ -52,11 +46,12 @@ WORK IN PROGRESS
 
     ```env
     # Flask Configuration
-    FLASK_APP=run.py
+    FLASK_APP=run
     FLASK_ENV=development
     FLASK_RUN_HOST=0.0.0.0
     FLASK_RUN_PORT=5000
-    OMDB_API_KEY=1ed15636  # Replace with your actual OMDb API key
+    FLASK_DEBUG=1 # Set to 0 for production, 1 for development
+    OMDB_API_KEY=f3dc5913  # Current limit 250k a day
 
     # Database Configuration
     POSTGRES_USER=coolteam
@@ -66,6 +61,9 @@ WORK IN PROGRESS
 
     # Security
     SECRET_KEY=movies_are_cool
+
+    # Python Path
+    PYTHONPATH=/src/app    
     ```
 
 3. **Build and Run Docker Containers**
@@ -95,6 +93,7 @@ WORK IN PROGRESS
     - `flask db upgrade`: Applies the migration to the database.
 
 5. **POPULATE THE DATABASE**
+
     verify your docker image is running with 
     
     ```bash
@@ -121,7 +120,8 @@ WORK IN PROGRESS
   To ensure that all environment variables are correctly loaded inside the `web` container, you can run:
 
   ```bash
-  docker compose exec web env | grep FLASK
+    docker compose exec web env | grep FLASK
+  ```
 
 ### Usage
 
@@ -129,34 +129,71 @@ WORK IN PROGRESS
 - **Sign Up:** [http://localhost:5000/signup](http://localhost:5000/signup)
 - **Profile:** Accessible via the username in the navbar after logging in.
 
-
 ## API Endpoints
+
+The application provides several API endpoints to facilitate user interaction and data management. Below is a list of available endpoints:
+
+User Authentication
+
+- POST /api/auth/signup - Register a new user.
+- POST /api/auth/login - Authenticate an existing user and obtain a token.
+- POST /api/auth/logout - Log out the current user.
+
+**Movies/TV Shows Management**
+
+- GET /api/media/search - Search for movies or TV shows based on query parameters.
+- GET /api/media/<id> - Retrieve detailed information about a specific movie or TV show.
+
+**Favorites Management**
+
+- POST /api/favorites - Add a movie or TV show to the user's favorites list.
+- DELETE /api/favorites/<id> - Remove a movie or TV show from the user's favorites list.
+- GET /api/favorites - Retrieve the user's favorites list.
+
+**Reviews Management**
+
+- POST /api/reviews - Add a review for a movie or TV show.
+- DELETE /api/reviews/<id> - Delete a user's review (admin only).
+- GET /api/reviews/<media_id> - Retrieve all reviews for a specific movie or TV show.
+
+**Recommendations**
+
+- GET /api/recommendations - Get personalized movie or TV show recommendations based on the user's favorites list.
+
+**Admin Endpoints**
+
+GET /api/admin/users - Retrieve all active user accounts.
+PUT /api/admin/users/<id>/toggle-admin - Toggle a user's administrator status.
+DELETE /api/admin/users/<id> - Delete a user account.
 
 ## Features
 
-- User Authentication (Sign Up, Login, Logout)
-- Secure Password Hashing
-- Database Integration with PostgreSQL
-- API Endpoints for [describe functionalities]
-- [Add more features as applicable]
+**User Authentication**
 
-## Color Pallette
-
-airport
-
-![pics/colors/airport.png](pics/colors/airport.png)
-
-cupcake
-
-![pics/colors/cupcake.png](pics/colors/cupcake.png)
-
-earth_fire
-
-![pics/colors/earth_fire.png](pics/colors/earth_fire.png)
-
-highway
-
-![pics/colors/highway.png](pics/colors/highway.png)
+- Secure user registration, login, and logout functionalities.
+- Password hashing for enhanced security.
+**Favorites Management**
+- Users can add or remove movies and TV shows to their personalized favorites list.
+- Favorites are accessible via the profile page.
+**Search Functionality**
+- Advanced search capabilities allowing users to search movies and TV shows by title, genre, rating, and release date.
+**Detailed Media Pages**
+- Detailed pages for each movie or TV show, displaying images, titles, release information, and average ratings.
+**User Reviews**
+- Users can add ratings and reviews to movies and TV shows.
+- Administrators can delete inappropriate reviews.
+**Recommendations**
+- Personalized recommendations based on users' favorites lists.
+- Options to filter recommendations by rating preferences.
+**Administrator Controls**
+- Full management of user accounts, including toggling administrator roles and deleting accounts.
+- Oversight of user-generated content such as reviews.
+**Database Integration**
+- Persistent data storage using PostgreSQL.
+- Efficient data management with SQLAlchemy and Alembic for migrations.
+**Containerized Deployment**
+- Seamless deployment using Docker and Docker Compose.
+- Easy setup and scalability with containerization.
 
 ## Project Structure
 
@@ -172,73 +209,57 @@ project-root/ ├── Dockerfile ├── docker-compose.yml ├── requir
 
 ## User Stories
 
-<!-- Describe the **user stories** for the project, ensuring each includes clear **acceptance criteria** and a **point estimate**. The **user stories** must align with the **use case diagram** and should be referred to as US#1, US#2, etc.  -->
-
 ## US #1 - User Registration and Authentication
 - As a user, I want to create an account with a secure password so that I can access the web-app's features. When I fill in the required account information (username, password) I want to hit a 'Submit' button which confirms that my account has been created.
 
-POINTS: 
+POINTS: 1/2
 
 ## US #2 - Login and Logout
 - As a user, I want to login and log out securely. On the landing page, I want to be able to hit the 'Log In' button where the system will autheticate my information and upon success, direct me to the main page of the website. When I hit the 'Log Out' button, I want the system to log my account, returning me to the landing page. 
 
-POINTS:
+POINTS: 1/2
 
 ## US #3 - User Account Control
 - As a user, I want to be able to click an "Account" link to be directed to a page that dsplays my account information. I want to be able to edit my password and account picture on this page.
 
-POINTS:
+POINTS: 2
 
 ## US #4 - Administrator Account Control
 - As an administrator, I want to be able to click a button that takes me to a page that displays all active user accounts for the website. I want to be able to toggle users to also be adminstrators. I want to be able to delete user accounts on this page as well, with a confirmation window popping up to confirm before deletion. 
 
-POINTS:
+POINTS: 1
 
 ## US #5 - Search Movies/TV
 - As a user, I want to be able to search either movies or TV shows by title, genres, rating, and release date. When I click the search button after specifying search parameters, I wish to view a list of my filtered results (see US#6)
 
-POINTS:
+POINTS: 3
 
 ## US #6 - List Filtered Movies/TV
 - After a successful search, I want to be able to view a list of movies or tv shows based on those search parameters. 
 
-POINTS:
+POINTS: 5
 
 ## US #7 - Movie/TV Object Page
-- As a user, after a successful search and viewing the list of search results, I want to click a tv/movie and be directed to a page that shows more info on that object. This page would show  information such as a key image, title, release information, and average rating.  
+- As a user, after a successful search and viewing the list of search results, I want to click a tv/movie and be directed to a page that shows more info on that object. This page would show information such as a key image, title, release information, and average rating.  
 
-POINTS:
+POINTS: 8
 
 ## US #8 - User Favorites List
 - As a user, I want to be able to click a button within the Movie/TV Object Page that will either add or remove that movie/tv object to a favorites list. When I click the "Favorites" button in the menu bar, I want to be directed to a page that shows me my favorites list. 
 
-POINTS:
+POINTS: 8
 
 ## US #9 - Movie/TV User Review
 - As a user, when I'm viewing a page for a Movie/TV Show, I want to be able to fill a field that allows me to add a 1-5 star rating and a short review for that movie. When this review is added, it displays it in a running column within the page for that Movie/TV show. 
 
 - As an administrator, I want to bee able to delete user reviews from their respective page, by clicking an 'X' next to each review that is only visible to administrators. 
 
-POINTS:
+POINTS: 10
 
 ## US #10 - Movie/TV Recommendation Page
 - As a user, I want to click a "Recommendations" button that directs me to a page that will recommend me Movies/TV shows based on my favorites list. I want to be able to specify if I want these recommendations to be either high or lower rated. 
 
-POINTS:
-
-## PROPOSED USER STORIES ##
-
-## US #11 - Random Button
-- As a user, I want to click a "Random" button that will give me a random Movie/TV Recommendation, directing me to the object page for that title. 
-
-## US #12 - Social Lists
-- As a user, I want to be able to view a users profile by clicking on their name when it appears under a review or discussion. On their profile page, I can their favorites list.
-
-## US #13 - Movie/TV Discussions
-- As a user, I want to be able to view a discussion thread in each movie/tv object page. I want to contribute or start a discussion by entering text into a field and hitting a "Submit" button. 
-
-## US #14 - Director/Actor page
-- As a user, I want to be able to click the name of an Actor/Director, and visit a page
+POINTS: 15
 
 ## Sequence Diagram
 
@@ -248,25 +269,34 @@ US #8 Sequence - User Favorites List
 
 # Development Process 
 
-<!-- This section should describe, in general terms, how Scrum was used in this project. Include a table summarizing the division of the project into sprints, the user story goals planned for each sprint, the user stories actually completed, and the start and end dates of each sprint. You may also add any relevant observations about the sprints as you see fit.
+For this project, SCRUM methodology was utilized over a period of 3 sprints. Communication was held primarily through a shared Discord channel accessible by the whole team. Except on days where daily scrums could be held during/after class, these were facilitated through the channel by a Discord bot that chimed at 7PM to call all available team members to report any progress or blockages, ask for help, etc. Sprint planning was mostly held in person, but the retrospective and reviews were done remotely also through the shared channel. 
 
-|Sprint#|Goals|Start|End|Done|Observations|
-|---|---|---|---|---|---|
-|1|US#1, US#2, ...|mm/dd/23|mm/dd/23|US#1|...|
+Sprint1
+- US1 - User Registration/Authentication -    POINTS: 1/2
+- US2 - Login/Logout                          POINTS: 1/2
 
-As in Project 2, you should take notes on the major sprint meetings: planning, daily scrums, review, and retrospective. Use the scrum folder and the shared templates to record your notes.
- -->
+Sprint2
+- US3 - User Account Control                  POINTS: 2
+- US4 - Admin Account Control                 POINTS: 1
+- US5 - Search Movies/TV                      POINTS: 3
+- US6 - List Filtered Search - Movies/TV      POINTS: 5 
+
+Sprint3
+- US6 - List Filtered Search - Movies/TV      POINTS: 5
+- US7 - Movie/TV Object Page                  POINTS: 8
+- US8 - User Favorites List                   POINTS: 8
+- US9 - Movie/TV User Review                  POINTS: 10
+- US10 - Movie/TV Recommendation Page         POINTS: 15
+
+Burndown Chart
+
+![pics/burndown_chart.png](pics/burndown_chart.png)
+
 # Testing 
 
-<!-- In this section, share the results of the tests performed to verify the quality of the developed product, including the test coverage in relation to the written code. There is no minimum code coverage requirement, but ensure there is at least some coverage through one white-box test and one black-box test. -->
 
 # Deployment 
-<!-- 
-The final product must demonstrate the integrity of at least 5 out of the 6 planned user stories. It should be packaged as a Docker image and be deployable using:
 
-```
-docker compose up
-``` -->
 
 # ## Dump File (OPTIONAL)
 

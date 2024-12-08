@@ -87,9 +87,9 @@ GitHub repository: <URL>
 # Rubric
 
 ```
-+5 Project's README file: mission statement
-+5 Project's README file: use case diagram
-+5 Project's README file: sequence diagram 
++5 Project's README file: mission statement`
++5 Project's README file: use case diagram`
++5 Project's README file: sequence diagram `
 +10 Project's README file: user stories (~ 6 x 1.5)
 +5 Project's README file: class diagram for the model classes
 +5 GitHub repository organization, branches, and main branch protection
