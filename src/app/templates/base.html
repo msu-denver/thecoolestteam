@@ -99,6 +99,13 @@
                             <a class="nav-link" href="{{ url_for('main.profile',id=current_user.id) }}">{{
                                 current_user.username }}</a>
                         </li>
+                        <!-- Display profile picture -->
+                        <li class="nav-item">
+                            <img src="{{ url_for('static', filename='profilepic/' ~ current_user.profile_picture) }}" 
+                                 alt="{{ current_user.username }}" 
+                                 class="img-thumbnail rounded-circle" 
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                        </li>
                     </ul>
                     {% else %}
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, bcrypt, cache
 from utils import fetch_poster
@@ -10,6 +10,7 @@ import random
 import datetime
 from flask_wtf import FlaskForm
 from flask_caching import Cache
+import os
 
 
 class DeleteForm(FlaskForm):
@@ -257,6 +258,9 @@ def media_detail(media_type, media_id):
 @login_required
 def profile_settings():
     form = ProfileForm()
+    profile_pic_path = os.path.join('/app/src/app/static/profilepic')
+    static_profile_pics = [f for f in os.listdir(profile_pic_path) if os.path.isfile(os.path.join(profile_pic_path, f))]
+
     if not form.validate_on_submit():
         print(form.errors)
     if form.validate_on_submit():
@@ -305,13 +309,36 @@ def profile_settings():
                     flash('Username updated successfully', 'success')
             else:
                 flash('Username did not change', 'success')
+
+            # Update the user's profile picture
+            # Update the user's profile picture
+            selected_picture = request.form.get('profile_picture')
+
+            if selected_picture:
+                # A profile picture was submitted
+                if selected_picture != current_user.profile_picture:
+                    # The user selected a new picture
+                    if selected_picture in static_profile_pics:
+                        current_user.profile_picture = selected_picture
+                        flash('Profile picture updated successfully', 'success')
+                    else:
+                        # The selected picture is not in the allowed list
+                        flash('Invalid profile picture selection.', 'danger')
+                        return redirect(url_for('main.profile_settings'))
+                else:
+                    # The selected picture is the same as the current one
+                    flash('Profile picture did not change', 'info')
+            else:
+                # No picture was selected at all
+                flash('No profile picture selected.', 'info')
+
             db.session.commit()
             return redirect(url_for('main.profile_settings'))
         except Exception as e:
             db.session.rollback()
             flash(e, 'danger')
             print(e)
-    return render_template('profile_settings.html', form=form)
+    return render_template('profile_settings.html', form=form, static_profile_pics=static_profile_pics)
 
 
 @main.route('/profile/<string:id>', methods=['GET', 'POST'])
