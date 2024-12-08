@@ -126,8 +126,8 @@
         <div class="favorites-container" id="favoriteTVShowsContainer">
             {% for tvshow in favorite_tvshows %}
             <div class="card">
-                <a href="{{ url_for('main.media_detail', media_type='movie', media_id=movie.id) }}">
-                    <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }} Poster">
+                <a href="{{ url_for('main.media_detail', media_type='tvshow', media_id=tvshow.id) }}">
+                    <img src="{{ tvshow.poster_url }}" class="card-img-top" alt="{{ tvshow.title }} Poster">
                 </a>
                 <div class="card-body">
                     <h5 class="card-title">{{ tvshow.title }}</h5>
