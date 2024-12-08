@@ -1,5 +1,7 @@
 # Project 3 Final Project - The Coolest Team
 
+original repo can be found here https://github.com/msu-denver/project-3-final-project-the-coolest-team/tree/dev
+
 ## Table of Contents
 
 - [Introduction](#introduction)
