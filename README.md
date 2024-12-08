@@ -78,7 +78,6 @@ This application was tested using the full IMDB dataset, including over 1m+ uniq
     ```bash
     docker compose up -d --build
     ```
-
     **Explanation:**
     - `up`: Creates and starts the containers.
     - `-d`: Runs containers in detached mode (in the background).
@@ -374,3 +373,4 @@ Burndown Chart
     ```powershell
     docker-compose exec db pg_restore --clean -U coolteam -d cool_movie_list -v /tmp/cool_movie_list.dump
     ```
+

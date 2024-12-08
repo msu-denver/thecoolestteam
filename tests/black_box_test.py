@@ -38,7 +38,7 @@ class ReviewTest(unittest.TestCase):
 
         #create / delete review
         
-        self.browser.get('http://127.0.0.1:5000/media/movie/tt25392008')
+        self.browser.get('http://127.0.0.1:5000/media/movie/tt14888874')
         
         reviewButton = WebDriverWait(self.browser, 10).until(EC.element_to_be_clickable((By.ID, "review_button")))
         reviewButton.click()
@@ -53,7 +53,7 @@ class ReviewTest(unittest.TestCase):
         submitButton.click()
 
         page = self.browser.current_url
-        self.assertEqual('http://127.0.0.1:5000/media/movie/tt25392008', page)
+        self.assertEqual('http://127.0.0.1:5000/media/movie/tt14888874', page)
 
         reviewUsername = WebDriverWait(self.browser, 15).until(EC.visibility_of_element_located((By.ID, 'user_comment')))
         self.assertEqual('test', reviewUsername.text)
