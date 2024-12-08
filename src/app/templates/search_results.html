@@ -3,6 +3,15 @@
 {% block title %}Search Results{% endblock %}
 
 {% block content %}
+<style>
+    /* Changed the color,shape, and size to the view details button */
+    .btn.btn-primary { 
+        background-color: #4da394;
+        border-color: #4da394;
+        border-radius: 15px;
+        width:180px;
+    }
+</style>
 <div class="container mt-5">
     <h2>Search Results for "{{ query }}"</h2>
     {% if results.movies or results.tv_shows %}
@@ -13,7 +22,7 @@
                 <div class="row g-0">
                     <div class="col-md-2">
                         <img src="{{ movie.poster_url }}" class="img-fluid rounded-start" alt="{{ movie.title }} Poster"
-                            style="max-width: 75px;">
+                            style="max-width: 175px;">
                     </div>
                     <div class="col-md-10">
                         <div class="card-body">

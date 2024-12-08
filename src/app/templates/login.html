@@ -3,6 +3,15 @@
 {% block title %}Login - The Coolest Team{% endblock %}
 
 {% block content %}
+<style>
+    /* Changed the color, shape, and size of the login button */
+    .btn.btn-primary {
+        background-color: #4da394;
+        border-color: #4da394;
+        border-radius: 15px;
+        width: 100px;
+    }
+</style> 
 <h2>Login</h2>
 <form method="POST" action="{{ url_for('main.login') }}">
     {{ form.hidden_tag() }}
