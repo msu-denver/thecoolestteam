@@ -3,11 +3,13 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Installation](#installation)
+- [Installation and Deployment](#installation-and-deployment)
   - [1. Clone the Repository](#1-clone-the-repository)
   - [2. Set Up Environment Variables](#2-set-up-environment-variables)
-  - [3. Build and Run with Docker Compose](#3-build-and-run-with-docker-compose)
-  - [4. Apply Database Migrations](#4-apply-database-migrations)
+  - [3. Build and Run Docker Containers](#3-build-and-run-docker-containers)
+  - [4. Access the Application](#4-apply-database-migrations)
+- [Creating and Applying New Migrations](#creating-and-applying-new-migrations)
+- [Troubleshooting](*troubleshooting)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Features](#features)
@@ -29,7 +31,7 @@ This application was tested using the full IMDB dataset, including over 1m+ uniq
 - [Docker Compose](https://docs.docker.com/compose/install/) installed
 - Git installed
 
-## Installation
+## Installation and Deployment
 
 1. **Clone the Repository**
 
@@ -68,7 +70,7 @@ This application was tested using the full IMDB dataset, including over 1m+ uniq
 
 3. **Build and Run Docker Containers**
 
-    Use Docker Compose to build and start the containers in detached mode.
+    Use Docker Compose to build and start the containers in detached mode. The `entrypoint.sh` script will automatically apply database migrations and populate the database with initial data.
 
     ```bash
     docker compose up -d --build
@@ -79,42 +81,55 @@ This application was tested using the full IMDB dataset, including over 1m+ uniq
     - `-d`: Runs containers in detached mode (in the background).
     - `--build`: Rebuilds the Docker images to incorporate the latest changes.
 
-4. **Apply Database Migrations**
+4. **Access the Application**
 
-    Initialize and apply the database migrations to set up the database schema.
+    Once the Docker containers are up and running, access the Flask application by navigating to [http://localhost:5000/](http://localhost:5000/) in your web browser.
 
     ```bash
-    docker compose exec web flask db migrate -m "Initial migration"
+    docker-compose logs -f web
+    ```
+
+    **Explanation:**
+    - **Monitoring Logs:** The `logs` command allows you to monitor the real-time output of the `web` container. Ensure that there are no errors related to migrations or data import.
+    - **What Happens Automatically:**
+        - **Database Migrations:** The `entrypoint.sh` script applies any pending database migrations automatically.
+        - **Data Import:** The script also imports data from `src/data/top_media.csv` if it hasn't been imported yet.
+
+---
+
+## Creating and Applying New Migrations
+
+Although initial migrations and data import are automated, you'll need to handle migrations manually when you make changes to your database models during development.
+
+1. **Create a New Migration Script**
+
+    After modifying your models, generate a new migration script.
+
+    ```bash
+    docker compose exec web flask db migrate -m "Describe your migration here"
+    ```
+
+    **Explanation:**
+    - `flask db migrate`: Scans your models and generates a new migration script based on the changes.
+    - `-m "..."`: Adds a descriptive message to the migration script for clarity.
+
+2. **Apply the Migration to the Database**
+
+    Once the migration script is generated, apply it to update the database schema.
+
+    ```bash
     docker compose exec web flask db upgrade
     ```
 
     **Explanation:**
-    - `flask db migrate`: Generates a new migration script by comparing the database schema to your models.
-    - `flask db upgrade`: Applies the migration to the database.
-
-5. **POPULATE THE DATABASE**
-
-    verify your docker image is running with 
-    
-    ```bash
-    docker ps
-    ```
-    If you see it running, populate the database by entering the web docker image and running the import_data.py          script
-
-   ```bash
-   docker compose exec web bash
-   python import_data.py
-   ```
-
-
-7. **Access the Application**
-
-    Open your web browser and navigate to [http://localhost:5000/](http://localhost:5000/) to view the homepage of the application.
+    - `flask db upgrade`: Applies the new migration script to the database, updating the schema accordingly.
 
 ---
 
-### **Additional Notes:**
+## Troubleshooting
 
+- **Migrations Error:** Ensure the `migrations/` directory is present and contains migration scripts.
+- **Import Data Error:** Verify the path to `import_data.py` and `top_media.csv` in `entrypoint.sh`.
 - **Verifying Environment Variables:**
   
   To ensure that all environment variables are correctly loaded inside the `web` container, you can run:
@@ -293,10 +308,7 @@ Burndown Chart
 ![pics/burndown_chart.png](pics/burndown_chart.png)
 
 # Testing 
-
-
-# Deployment 
-
+!!!!
 
 # ## Dump File (OPTIONAL)
 
