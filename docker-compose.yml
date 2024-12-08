@@ -11,6 +11,7 @@ services:
       - db
     env_file:
       - .env  # Load all environment variables from .env
+    entrypoint: ["./entrypoint.sh"]  # Override the default entrypoint
     restart: unless-stopped  # Restart policy
     container_name: web
 
