@@ -81,7 +81,7 @@ Feel free to add other folders as you see fit.
 Commit this **README.md** file with the link of your project's GitHub repository below: 
 
 ```
-GitHub repository: <URL>
+GitHub repository: <https://github.com/msu-denver/project-3-final-project-the-coolest-team>
 ```
 
 # Rubric
