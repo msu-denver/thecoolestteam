@@ -83,6 +83,20 @@ This application was tested using the full IMDB dataset, including over 1m+ uniq
     - `up`: Creates and starts the containers.
     - `-d`: Runs containers in detached mode (in the background).
     - `--build`: Rebuilds the Docker images to incorporate the latest changes.
+  
+***WARNING***
+If you are running this in a Windows environment, you may get an error when importing the data in the webs container log. 
+To circumvent this, disable git's automatic conversion via
+
+```bash
+git config --global core.autocrlf input
+```
+Then reset the repo using this
+
+```bash
+git rm --cached -r .
+git reset --hard
+```
 
 4. **Access the Application**
 
